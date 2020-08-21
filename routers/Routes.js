@@ -1,26 +1,36 @@
 const express = require('express');
-const KittenModel = require('../models/KittySchema');
+const newUserSchema = require('../models/userDataSchema');
 const app = express();
+let _ = require("underscore");
+let bodyParser= require("body-parser");
 
-app.post('/kittyAdd/:name', async (req, res) => {
+app.use(bodyParser.json());
 
-    const fluffy = new KittenModel({name: req.params.name});
-    await fluffy.save();
-    res.send(fluffy);
+app.post('/addNewPersonel',  (req, res) => {
+
+    const newUser=
+    let body= _.pick(req.body,"first_name","last_name","number");
+    res.send(body.first_name);
+
 
 })
 
-app.get('/kitty', async (req, res) => {
+app.put("/", (req,res) => {
 
-    const foods = await KittenModel.find({});
-    try {
-        res.send(foods);
+    res.send("Put isteği gönderildi.")
 
-    } catch (err) {
+})
 
-        res.status(500).send(err);
+app.delete("/", (req,res) => {
 
-    }
+    res.send("Delete isteği gönderildi.")
+
+})
+
+
+app.get('/kitty',  (req, res) => {
+
+    res.send("Node.js başarılı bir şekilde çalıştı.")
 
 });
 
