@@ -1,34 +1,46 @@
 const express = require('express');
 const newUserSchema = require('../models/userDataSchema');
 const app = express();
-let _ = require("underscore");
-let bodyParser= require("body-parser");
+app.use(express.json())
 
-app.use(bodyParser.json());
+app.post('/addNewPersonel', async (req, res) => {
 
-app.post('/addNewPersonel',  (req, res) => {
+    try {
+        const newUser = new newUserSchema({
+            userName:req.body.userName,
+            userMail:req.body.userMail,
+            password:req.body.password
+        });
 
-    const newUser=
-    let body= _.pick(req.body,"first_name","last_name","number");
-    res.send(body.first_name);
+        await newUser.save();
 
+        res.send(req.body);
+
+    }
+
+    catch (err) {
+
+        console.log(err);
+        res.status(500).send("Server error");
+
+    }
 
 })
 
-app.put("/", (req,res) => {
+app.put("/", (req, res) => {
 
     res.send("Put isteği gönderildi.")
 
 })
 
-app.delete("/", (req,res) => {
+app.delete("/", (req, res) => {
 
     res.send("Delete isteği gönderildi.")
 
 })
 
 
-app.get('/kitty',  (req, res) => {
+app.get('/kitty', (req, res) => {
 
     res.send("Node.js başarılı bir şekilde çalıştı.")
 

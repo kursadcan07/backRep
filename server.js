@@ -3,11 +3,7 @@ const mongoose = require('mongoose');
 
 const kittyRoute = require('./routers/Routes.js');
 const app = express();
-
-let bodyParser = require("body-parser");
-let _= require("underscore");
-
-app.use(bodyParser.json());
+app.use(express.json())
 
 // Make sure it comes back as json
 app.use(kittyRoute);
@@ -19,6 +15,6 @@ db.once('open', function() {
     console.log("Connection Successful!");
 });
 
-app.listen(3000, () => { console.log('Server is running...') });
+app.listen(5000, () => { console.log('Server is running...') });
 
 
