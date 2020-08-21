@@ -39,11 +39,12 @@ app.delete("/", (req, res) => {
 
 })
 
+app.get('/displayMembers',async (req, res) => {
 
-app.get('/kitty', (req, res) => {
-
-    res.send("Node.js başarılı bir şekilde çalıştı.")
+    const users = await newUserSchema.find({});
+    res.send(users);
 
 });
+
 
 module.exports = app
