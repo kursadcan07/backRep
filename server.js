@@ -1,15 +1,23 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const foodRouter = require('./routers/FoodRoutes.js');
 
+const kittyRoute = require('./routers/Routes.js');
 const app = express();
-app.use(express.json()); // Make sure it comes back as json
-const uri = "mongodb+srv://testboy:mongo123@cluster0.iqq5a.mongodb.net/Cluster0?retryWrites=true&w=majority";
 
-mongoose.connect(uri, {
-    useNewUrlParser: true
+let bodyParser = require("body-parser");
+let _= require("underscore");
+
+app.use(bodyParser.json());
+
+// Make sure it comes back as json
+app.use(kittyRoute);
+mongoose.connect('mongodb+srv://testboy:mongo123@cluster0.iqq5a.mongodb.net/Cluster0?retryWrites=true&w=majority', {useNewUrlParser: true});
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+    console.log("Connection Successful!");
 });
-app.use(foodRouter);
 
 app.listen(3000, () => { console.log('Server is running...') });
 
