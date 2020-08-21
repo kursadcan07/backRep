@@ -22,9 +22,7 @@ app.post('/addNewPersonel', async (req, res) => {
 
         console.log(err);
         res.status(500).send("Server error");
-
     }
-
 })
 
 app.put("/", (req, res) => {
@@ -39,10 +37,22 @@ app.delete("/", (req, res) => {
 
 })
 
-app.get('/displayMembers',async (req, res) => {
+app.post('/displayMembers',async (req, res) => {
+    try
+    {
+        const doesUserExit = await newUserSchema.exists({ userName: req.body.userName});
 
-    const users = await newUserSchema.find({});
-    res.send(users);
+        if (doesUserExit){
+            res.send( "KULLANICI BULUNDU ! ");
+        }
+        else{
+            res.send("KULLANICI BULUNAMADI ! ");
+        }
+    }
+   catch (e) {
+       res.send("HATA");
+   }
+
 
 });
 
