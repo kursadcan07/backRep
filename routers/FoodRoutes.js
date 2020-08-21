@@ -13,7 +13,6 @@ app.get('/foods', async (req, res) => {
 
 app.post('/food', async (req, res) => {
     const food = new foodModel(req.body);
-
     try {
         await food.save();
         res.send(food);
