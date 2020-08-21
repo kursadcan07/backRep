@@ -1,27 +1,27 @@
+
 const mongoose = require('mongoose');
 
+let validateEmail = function(email) {
+    let re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    return re.test(email)
+};
+
 const FoodSchema = new mongoose.Schema({
-    name: {
+    email: {
         type: String,
-        required: true,
         trim: true,
-        lowercase: true
+        lowercase: true,
+        unique: true,
+        required: 'Email address is required',
+        validate: [validateEmail, 'Please fill a valid email address'],
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
     },
-    calories: {
-        type: Number,
-        default: 0,
-        validate(value) {
-            if (value < 0) throw new Error("Negative calories aren't real.");
-        }
-    },
-    email:{
+    password:{
         type:String,
         required:true,
         trim: true,
         lowercase:true,
-        validate(value){
-            if(value.length<5) throw new Error("Email kısa olamaz !!!");
-        }
+
     }
 });
 
