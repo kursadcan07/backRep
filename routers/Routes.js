@@ -7,7 +7,6 @@ app.post('/addNewPersonel', async (req, res) => {
 
     try {
         const newUser = new newUserSchema({
-            userName:req.body.userName,
             userMail:req.body.userMail,
             password:req.body.password
         });
@@ -17,7 +16,6 @@ app.post('/addNewPersonel', async (req, res) => {
         res.send(req.body);
 
     }
-
     catch (err) {
 
         console.log(err);

@@ -3,15 +3,6 @@ let emailRegex = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{
 let passRegex = /^[a-zA-Z0-9]{4,10}$/ ;
 
 const newUserSchema = new mongoose.Schema({
-    userName:{
-        type:String,
-        required:true,
-        validate(value) {
-            if (value.length>15) {
-                throw new Error('Name cannot longer than 15')
-            }
-        }
-    },
     userMail:{
         type:String,
         lowercase:true,
