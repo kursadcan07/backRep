@@ -1,26 +1,27 @@
 const express = require('express');
-const newUserSchema = require('../models/userDataSchema');
+const userModel = require('../models/userDataSchema');
 const app = express();
-app.use(express.json())
+app.use(express.json());
 
-app.post('/addNewPersonel', async (req, res) => {
+const crypto = require('crypto');
+const algorithm = 'aes-256-cbc';
+const key = crypto.randomBytes(32);
+const iv = crypto.randomBytes(16);
 
-    try {
-        const newUser = new newUserSchema({
-            userMail:req.body.userMail,
-            password:req.body.password
-        });
+function encrypteString(text) {
+    let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return {iv: iv.toString('hex'), encryptedData: encrypted.toString('hex')};
+}
 
-        await newUser.save();
-
-        res.send(req.body);
-
-    }
-    catch (err) {
-
-        console.log(err);
-        res.status(500).send("Server error");
-    }
+app.post('/addNewPersonel', (req, res) => {
+    let newUser = new userModel({
+        userMail: req.body.userMail,
+        password: req.body.password
+    });
+    userModel.addUser(newUser);
+    res.send("Successfully");
 })
 
 app.put("/", (req, res) => {
@@ -35,26 +36,48 @@ app.delete("/", (req, res) => {
 
 })
 
-app.get('/displayMembers',async (req, res) => {
-    try
-    {
-        const doesUserExit = await newUserSchema.exists({ userName: req.body.userName});
+app.post('/login', async (req, res) => {
+    try {
+        const doesUserExit = await userModel.find({});
+        res.send(doesUserExit[0]);
 
-        if (doesUserExit){
-            res.send( "KULLANICI BULUNDU ! ");
-            res.send(newUserSchema.find({userName: req.body.userName}));
-
-        }
-        else{
-            res.send("KULLANICI BULUNAMADI ! ");
-        }
+    } catch (err) {
+        console.log("Hata")
     }
-   catch (e) {
-       res.send("HATA");
-   }
-
 
 });
 
 
-module.exports = app
+/*
+*module.exports.getUserByUsername = function(username, callback){
+    const query = {username: username}
+    User.findOne(query, callback);
+}User.getUserByUsername(username, (err, user) => {
+    if (err) throw err;
+    if (!user) {
+      return res.json({ success: false, msg: "User not found!" });
+    }
+ */
+module.exports = app;
+/*
+
+
+   userModel.getUserByUsername(userMail, (err, user) => {
+        if (err) throw err;
+        if (!user) {
+            return res.json({success: false, msg: "User not found!"});
+        }
+    });
+
+
+
+
+ try {
+        const foundUser = await userModel.find({}).exec();
+        res.send(foundUser);
+        res.send("BAŞARILI")
+
+    }
+        catch (e) {console.log("ghata")
+    }
+ */
