@@ -35,13 +35,15 @@ app.delete("/", (req, res) => {
 
 })
 
-app.post('/displayMembers',async (req, res) => {
+app.get('/displayMembers',async (req, res) => {
     try
     {
         const doesUserExit = await newUserSchema.exists({ userName: req.body.userName});
 
         if (doesUserExit){
             res.send( "KULLANICI BULUNDU ! ");
+            res.send(newUserSchema.find({userName: req.body.userName}));
+
         }
         else{
             res.send("KULLANICI BULUNAMADI ! ");
