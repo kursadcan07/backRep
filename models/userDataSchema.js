@@ -6,36 +6,32 @@ const newUserSchema = new mongoose.Schema({
     userMail: {
         type: String,
         lowercase: true,
-        required: true
+        required: true,
+        validate: [checkEmailType, 'E-Mail is not in true form']
     },
     password: {
         type: String,
         encryptedData: String,
-        required: true
+        required: true,
+        validate: [validatePassword, 'Password is not in true form']
     }
 });
 
-const userModel = module.exports = mongoose.model('userModel', newUserSchema);
-
-module.exports.addUser = function (userCandidate) {
-    try {
-        userCandidate.save();
-    } catch (err) {
-        console.log("Kayıt oluşturulurken hata ! ")
-    }
+function checkEmailType(value) {
+    return (emailRegex.test(value));
+}
+function validatePassword(value) {
+    return (passRegex.test(value));
 }
 
-module.exports.comparePassword = function (userData,callback) {
-    const query = {userMail:userData.userMail,password:userData.password};
-    userModel.findOne(query,callback);
+const userModel = module.exports = mongoose.model('userModel', newUserSchema);
+
+module.exports.comparePassword = function (userData, callback) {
+    const query = {userMail: userData.userMail, password: userData.password};
+    userModel.findOne(query, callback);
 }
 
 module.exports.getUserByMail = function (userMailEx, callback) {
     const query = {userMail: userMailEx}
     userModel.findOne(query, callback);
 }
-
-
-
-
-

@@ -7,7 +7,7 @@ app.post('/addNewUser', (req, res) => {
 
     if (userModel.getUserByMail(req.body.userMail)) {
         res.send("Mail Kullanımdadır Başka Mail Adresi Giriniz");
-        return;
+        return null;
     }
 
     try {
@@ -15,12 +15,12 @@ app.post('/addNewUser', (req, res) => {
             userMail: req.body.userMail,
             password: req.body.password
         })
-        userModel.addUser(newUser);
-    } catch (err) {
-        res.send("Alanı Uygun Formatta doldurunuz");
-    }
+        newUser.save();
+        res.send("OK");
 
-    res.send("KAYIT BAŞARIYLA OLUŞTURULDU");
+    } catch (e) {
+        res.send("HATA");
+    }
 
 })
 
@@ -36,7 +36,7 @@ app.delete("/", (req, res) => {
 
 })
 
-app.post('/login',(req, res) => {
+app.post('/login', (req, res) => {
 
     let newUser = new userModel({
         userMail: req.body.userMail,
@@ -47,14 +47,12 @@ app.post('/login',(req, res) => {
             if (err) throw err;
             if (!user) {
                 return res.json({success: false, msg: "User not found!"});
-            }
-            else {
+            } else {
                 userModel.comparePassword(newUser, (err, user) => {
                         if (err) throw err;
                         if (!user) {
                             return res.json({success: false, msg: "Kullanıcı adı şifre hatalı !"});
-                        }
-                        else {
+                        } else {
                             res.send("GİRİŞ BAŞARILI")
                         }
                     }
@@ -62,7 +60,6 @@ app.post('/login',(req, res) => {
             }
         }
     )
-
 
 
 });
