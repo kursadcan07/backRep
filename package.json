@@ -4,7 +4,7 @@
   "description": "merhaba",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js nodemon"
+    "start": "nodemon server.js"
   },
   "keywords": [],
   "author": "kursadcan",
@@ -19,7 +19,6 @@
     "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
     "mongoose": "^5.10.0",
-    "nodemon": "^2.0.4",
     "validator": "^13.1.1"
   },
   "repository": {

@@ -5,9 +5,10 @@ const kittyRoute = require('./routers/Routes.js');
 const app = express();
 app.use(express.json())
 
-// Make sure it comes back as json
+
 app.use(kittyRoute);
 mongoose.connect('mongodb+srv://testboy:mongo123@cluster0.iqq5a.mongodb.net/Cluster0?retryWrites=true&w=majority', {useNewUrlParser: true});
+
 
 const db = mongoose.connection;
 

@@ -3,25 +3,25 @@ const userModel = require('../models/userDataSchema');
 const app = express();
 app.use(express.json());
 
-const crypto = require('crypto');
-const algorithm = 'aes-256-cbc';
-const key = crypto.randomBytes(32);
-const iv = crypto.randomBytes(16);
+app.post('/addNewUser', (req, res) => {
 
-function encrypteString(text) {
-    let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return {iv: iv.toString('hex'), encryptedData: encrypted.toString('hex')};
-}
+    if (userModel.getUserByMail(req.body.userMail)) {
+        res.send("Mail Kullanımdadır Başka Mail Adresi Giriniz");
+        return;
+    }
 
-app.post('/addNewPersonel', (req, res) => {
-    let newUser = new userModel({
-        userMail: req.body.userMail,
-        password: req.body.password
-    });
-    userModel.addUser(newUser);
-    res.send("Successfully");
+    try {
+        let newUser = new userModel({
+            userMail: req.body.userMail,
+            password: req.body.password
+        })
+        userModel.addUser(newUser);
+    } catch (err) {
+        res.send("Alanı Uygun Formatta doldurunuz");
+    }
+
+    res.send("KAYIT BAŞARIYLA OLUŞTURULDU");
+
 })
 
 app.put("/", (req, res) => {
@@ -36,48 +36,35 @@ app.delete("/", (req, res) => {
 
 })
 
-app.post('/login', async (req, res) => {
-    try {
-        const doesUserExit = await userModel.find({});
-        res.send(doesUserExit[0]);
+app.post('/login',(req, res) => {
 
-    } catch (err) {
-        console.log("Hata")
-    }
+    let newUser = new userModel({
+        userMail: req.body.userMail,
+        password: req.body.password
+    })
+
+    userModel.getUserByMail(newUser.userMail, (err, user) => {
+            if (err) throw err;
+            if (!user) {
+                return res.json({success: false, msg: "User not found!"});
+            }
+            else {
+                userModel.comparePassword(newUser, (err, user) => {
+                        if (err) throw err;
+                        if (!user) {
+                            return res.json({success: false, msg: "Kullanıcı adı şifre hatalı !"});
+                        }
+                        else {
+                            res.send("GİRİŞ BAŞARILI")
+                        }
+                    }
+                )
+            }
+        }
+    )
+
+
 
 });
 
-
-/*
-*module.exports.getUserByUsername = function(username, callback){
-    const query = {username: username}
-    User.findOne(query, callback);
-}User.getUserByUsername(username, (err, user) => {
-    if (err) throw err;
-    if (!user) {
-      return res.json({ success: false, msg: "User not found!" });
-    }
- */
 module.exports = app;
-/*
-
-
-   userModel.getUserByUsername(userMail, (err, user) => {
-        if (err) throw err;
-        if (!user) {
-            return res.json({success: false, msg: "User not found!"});
-        }
-    });
-
-
-
-
- try {
-        const foundUser = await userModel.find({}).exec();
-        res.send(foundUser);
-        res.send("BAŞARILI")
-
-    }
-        catch (e) {console.log("ghata")
-    }
- */
