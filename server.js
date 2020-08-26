@@ -1,9 +1,10 @@
 const express = require('express');
-const mongoose = require('mongoose');
-
+const mongoose = require('mongoose'),
+    autoIncrement = require('mongoose-auto-increment');
 const kittyRoute = require('./routers/Routes.js');
 const app = express();
 app.use(express.json())
+
 
 
 app.use(kittyRoute);
@@ -11,6 +12,7 @@ mongoose.connect('mongodb+srv://testboy:mongo123@cluster0.iqq5a.mongodb.net/Clus
 
 
 const db = mongoose.connection;
+autoIncrement.initialize(db);
 
 db.on('error', console.error.bind(console, 'connection error:'));
 
