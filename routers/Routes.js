@@ -74,7 +74,7 @@ app.post('/login', async (req, res) => {
 /* THIS METHOD CREATES NEW PERMISSION DEMANDS*/
 app.post('/createPermission', (req, res) => {
     try {
-        let mockUserID = "20";
+        let mockUserID = "100";
         let mockUsername = "VELİ";
         let mockUserType = "1";
         let mockDemandID = "100";
@@ -203,8 +203,14 @@ app.get(('/displayAllEmployee'), (req, res) => {
 
 /*THIS METHOD FINDS FILTERED PERMISSION AND UPDATES IT */
 app.put("/changeChiefStatus", (req, res) => {
-    permissionModel.findOneAndUpdate({_id: req.body.permissionID}, {$set: {chiefStatus: "50", __enc_message: false}});
-    res.send("SUCCES");
+    permissionModel.findOneAndUpdate({ permissionID: req.body.permissionID},{chiefStatus:"220",__enc_message: false }, function(err,result)
+    {
+        if (err) {
+            res.send(err);
+        } else {
+            res.json(result +" \n\t Başarıyla Revize Edilmiştir " );
+        }
+    });
 });
 /*------------------*/
 
