@@ -1,15 +1,22 @@
+/*
+ * IMPORTS
+ */
 const express = require('express');
 const userModel = require('../models/UserDataSchema');
 const permissionModel = require('../models/PermissionSchema');
 const app = express();
 app.use(express.json());
 
-/*
-*  USER BASED OPERATIONS ***
-* */
-// ==> ADD NEW USER TO THE SYSTEM
-app.post('/addNewUser', async (req, res ) => {
-    await userModel.getUserByMail(req.body.userMail,(err, user) => {
+/*-----CRUD OPERATIONS ROUTERS----------*/
+
+
+/*-------------------------------------------*/
+/*[  1) ADD-CREATE OPERATIONS DEFINED HERE  ]*/
+/*___________________________________________*/
+
+/* THIS METHOD ADDS NEW USER TO THE SYSTEM */
+app.post('/addNewUser', async (req, res) => {
+    await userModel.getUserByMail(req.body.userMail, (err, user) => {
         if (err) throw err;
         if (user) {
             res.send("Mail Adresi Kullanımdadır Başka Deneyiniz !")
@@ -33,26 +40,9 @@ app.post('/addNewUser', async (req, res ) => {
         }
     });
 });
+/*------------------*/
 
-app.put("/changeChiefStatus", (req, res) => {
-    permissionModel.findOneAndUpdate({_id: req.body.permissionID }, { $set: { chiefStatus: "50", __enc_message: false } });
-    res.send("SUCCES");
-});
-
-app.delete("/deleteAllUsers", async (req, res) => {
-    const resEm = await userModel.deleteMany({});
-    res.send(resEm.deletedCount + "kadar silindi");
-
-});
-
-app.delete('/deleteUser/:userID', async (req, res) => {
-    userModel.deleteOne({userID: req.params.userID}, function (err) {
-        if (err) return (err);
-        res.send(req.params.userID + " deleted !")
-        // deleted at most one tank document
-    });
-});
-
+/* THIS METHOD ALLOWS LOGIN OPERATION WITH EMAIL-PASSWORD VALIDATION */
 app.post('/login', async (req, res) => {
 
     let newUser = new userModel({
@@ -79,7 +69,9 @@ app.post('/login', async (req, res) => {
         }
     );
 });
+/*------------------*/
 
+/* THIS METHOD CREATES NEW PERMISSION DEMANDS*/
 app.post('/createPermission', (req, res) => {
     try {
         let mockUserID = "20";
@@ -125,11 +117,20 @@ app.post('/createPermission', (req, res) => {
         res.send("HATA OLUŞRU İZİN TALEP EDİLİRKEN !!")
     }
 });
+/*------------------*/
+/*************************************/
 
+
+
+/*--------------------------------------*/
+/*[ 2) GET-READ OPERATIONS DEFINED HERE ]*/
+/*______________________________________*/
+
+/* THIS METHOD DISPLAYS USERS PERMISSIONS WHOM GIVEN BY DYNAMIC ":userID" KEYWORD */
 app.get('/displayUsersPermissions/:userID', async (req, res) => {
 
     let newUserPermission = new permissionModel({
-        userID:req.body.userID
+        userID: req.body.userID
     })
 
     await permissionModel.getPermissionsByUserID(newUserPermission.userID, (err, data) => {
@@ -143,8 +144,9 @@ app.get('/displayUsersPermissions/:userID', async (req, res) => {
     );
 
 });
+/*------------------*/
 
-
+/*THIS METHOD DISPLAYS ALL PERMISSIONS IN THE SYSTEM INDEPENDENTLY FROM USER */
 app.get('/displayAllPermissions', (req, res) => {
     permissionModel.find({}, function (err, data) {
         if (err) {
@@ -162,23 +164,9 @@ app.get('/displayAllPermissions', (req, res) => {
 
     })
 });
+/*------------------*/
 
-app.delete("/deleteAllPermissions", async (req, res) => {
-    const resEm = await permissionModel.deleteMany({});
-    res.send(resEm.deletedCount + " kadar izin silindi");
-
-});
-
-app.put('/resetPermissionIDs', (req, res) => {
-    permissionModel.resetIdCounter();
-    res.send("İZİN ID'LERİ RESETLENDİ")
-});
-
-app.put('/resetUsersIDs', (req, res) => {
-    userModel.resetTheIDcounter();
-    res.send("RESETLENDİ")
-});
-
+/*THIS METHOD DISPLAYS PERSONAL INFORMATION THAT BELONGS TO USER THAT DISTINGUISHED BY DYNAMIC URL PART "userID" */
 app.get(('/displayEmployee/:userID'), (req, res) => {
     userModel.findOne({userID: req.params.userID}, function (err, data) {
         if (err) {
@@ -191,7 +179,8 @@ app.get(('/displayEmployee/:userID'), (req, res) => {
 
     })
 })
-
+/*------------------*/
+/*THIS METHOD DISPLAYS WHOLE EMPLOYEES IN THE SYSTEM */
 app.get(('/displayAllEmployee'), (req, res) => {
     userModel.find({}, function (err, data) {
         if (err) {
@@ -204,5 +193,66 @@ app.get(('/displayAllEmployee'), (req, res) => {
 
     })
 })
+/*------------------*/
+/*************************************/
+
+
+/*----------------------------------------*/
+/*[ 3)PUT-UPDATE OPERATIONS DEFINED HERE ]*/
+/*________________________________________*/
+
+/*THIS METHOD FINDS FILTERED PERMISSION AND UPDATES IT */
+app.put("/changeChiefStatus", (req, res) => {
+    permissionModel.findOneAndUpdate({_id: req.body.permissionID}, {$set: {chiefStatus: "50", __enc_message: false}});
+    res.send("SUCCES");
+});
+/*------------------*/
+
+/*THIS METHOD RESETS PERMISSIONS ID */
+app.put('/resetPermissionIDs', (req, res) => {
+    permissionModel.resetIdCounter();
+    res.send("İZİN ID'LERİ RESETLENDİ")
+});
+/*------------------*/
+
+/*THIS METHOD RESETS USERS ID */
+app.put('/resetUsersIDs', (req, res) => {
+    userModel.resetUserIDs();
+    res.send("RESETLENDİ")
+});
+/*------------------*/
+/*************************************/
+
+
+/*-----------------------------------*/
+/*[ 4)DELETE OPERATIONS DEFINED HERE ]*/
+/*___________________________________*/
+
+
+/*THIS METHOD DELETES ALL USERS*/
+app.delete("/deleteAllUsers", async (req, res) => {
+    const resEm = await userModel.deleteMany({});
+    res.send(resEm.deletedCount + "kadar silindi");
+
+});
+/*------------------*/
+
+app.delete('/deleteUser/:userID', async (req, res) => {
+    userModel.deleteOne({userID: req.params.userID}, function (err) {
+        if (err) return (err);
+        res.send(req.params.userID + " deleted !")
+        // deleted at most one tank document
+    });
+});
+/*------------------*/
+/*************************************/
+
+
+
+app.delete("/deleteAllPermissions", async (req, res) => {
+    const resEm = await permissionModel.deleteMany({});
+    res.send(resEm.deletedCount + " kadar izin silindi");
+
+});
 
 module.exports = app;
