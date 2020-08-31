@@ -60,7 +60,7 @@ function validatePassword(value) {
 * PLUGIN IMPLEMENTED HERE TO ENCRYPT FIELDS.
 */
 newUserSchema.plugin(mongooseFieldEncryption, {
-    fields: ["userID","userMail","userName","userStatus","userArea","password"],
+    fields: ["password"],
     secret: "some secret key",
     saltGenerator: function(secret) {
         return "1234567890123456"; // should ideally use the secret to return a string of length 16

@@ -6,6 +6,8 @@ const userModel = require('../models/UserDataSchema');
 const permissionModel = require('../models/PermissionSchema');
 const app = express();
 app.use(express.json());
+const cors = require('cors');
+app.use(cors());
 
 /*-----CRUD OPERATIONS ROUTERS----------*/
 
@@ -23,19 +25,26 @@ app.post('/addNewUser', async (req, res) => {
         } else {
             try {
                 let newUser = new userModel({
+                    userID:req.body.userID,
                     userMail: req.body.userMail,
                     password: req.body.password,
-                    userName: req.body.username,
+                    userName: req.body.userName,
                     userStatus: req.body.userStatus,
                     userArea: req.body.userArea
                 })
 
                 newUser.save();
 
-                res.send(newUser + "\n eklendi ...");
+                res.send({
+                    mes:"YENİ KAYIT BAŞARIYLA YARATILDI",
+                    stat:true
+                });
 
             } catch (e) {
-                res.send("HATA");
+                res.send({
+                    mes:"YENİ KAYIT YARATILAMADI",
+                    stat:false
+                });
             }
         }
     });
@@ -54,14 +63,21 @@ app.post('/login', async (req, res) => {
             if (err) throw err;
             if (!user) {
                 //return res.json({success: false, msg: "User not found!"});
-                res.send("Mail Adresi Mevcut Değil !")
+                res.send({mes:"Mail Adresi Mevcut Değil !",
+                                stat:false})
             } else {
                 userModel.comparePassword(newUser, (err, user) => {
                         if (err) throw err;
                         if (!user) {
-                            res.send("ŞİFRE HATALI")
+                            res.send({mes:"Şifre Yanlış",
+                                stat:false})
                         } else {
-                            res.send("GİRİŞ BAŞARILI")
+
+                            res.send({mes:"BAŞARILI GİRİŞ",
+                                            stat:true,
+                                            onlineUser:user
+                            })
+
                         }
                     }
                 )
@@ -69,6 +85,35 @@ app.post('/login', async (req, res) => {
         }
     );
 });
+/*
+userID: {
+    type: Number,
+        unique:true
+},
+userMail: {
+    type: String,
+        lowercase: true,
+        required: true,
+        validate: [checkEmailType, 'Password is not in true form']
+},
+userName: {
+    type: String,
+        required: true,
+},
+userStatus: {
+    type: String,
+        required: true
+},
+userArea: {
+    type: String,
+        required: true
+},
+password: {
+    type: String,
+        required: true,
+        validate: [validatePassword, 'Password is not in true form']
+}
+});*/
 /*------------------*/
 
 /* THIS METHOD CREATES NEW PERMISSION DEMANDS*/
@@ -176,7 +221,6 @@ app.get(('/displayEmployee/:userID'), (req, res) => {
         } else {
             res.send(data);
         }
-
     })
 })
 /*------------------*/
@@ -228,6 +272,7 @@ app.put('/resetUsersIDs', (req, res) => {
 });
 /*------------------*/
 /*************************************/
+
 
 
 /*-----------------------------------*/
