@@ -19,38 +19,37 @@ app.use(cors());
 /* THIS METHOD ADDS NEW USER TO THE SYSTEM */
 app.post('/addNewUser', async (req, res) => {
     let flag = false;
-    let newUser;
     await userModel.getUserByMail(req.body.userMail, (err, user) => {
         if (err) throw err;
         if (user) {
-            res.send("Mail Adresi Kullanımdadır Başka Deneyiniz !")
-        } else {
-            try {
-                newUser = new userModel({
-                    userMail: req.body.userMail,
-                    password: req.body.password,
-                    personalName: req.body.personalName,
-                    userStatus: req.body.userStatus,
-                    userArea: req.body.userArea
-                })
-                flag=true;
-
-            } catch (e) {
-
-                flag=false;
-            }
-            if (flag){
-                newUser.save();
-                res.send({
-                    mes:"YENİ KAYIT BAŞARIYLA YARATILDI",
-                    stat:true
-                });
-            }else{
-                res.send({
-                    mes:"YENİ KAYIT YARATILAMADI",
-                    stat:false
-                });
-            }
+            res.send({
+                mes: "Mail Adresi Kullanımdadır Başka Adres Deneyiniz",
+                stat: false
+            })
+        }
+        else {
+            let newUser = new userModel({
+                userMail: req.body.userMail,
+                userPassword: req.body.userPassword,
+                personalName: req.body.personalName,
+                userStatus: req.body.userStatus,
+                userArea: req.body.userArea
+            })
+            newUser.save(function (err) {
+                if (err) {
+                    res.send({
+                        mes: err,
+                        stat: false
+                    });
+                }
+                else
+                {
+                    res.send({
+                        mes: "KAYIT BAŞARIYLA OLUŞTURULDU",
+                        stat: true
+                    })
+                }
+            });
         }
     });
 });
@@ -61,27 +60,42 @@ app.post('/login', async (req, res) => {
 
     let newUser = new userModel({
         userMail: req.body.userMail,
-        password: req.body.password,
-        personalName:"__"
+        userPassword: req.body.userPassword,
+        personalName: "__"
     });
 
     await userModel.getUserByMail(newUser.userMail, (err, user) => {
-            if (err) throw err;
+            if (err) {
+                res.send({
+                    mes: err,
+                    stat: false
+                })
+            }
             if (!user) {
                 //return res.json({success: false, msg: "User not found!"});
-                res.send({mes:"Mail Adresi Mevcut Değil !",
-                                stat:false})
+                res.send({
+                    mes: "Mail Adresi Mevcut Değil !",
+                    stat: false
+                })
             } else {
                 userModel.comparePassword(newUser, (err, user) => {
-                        if (err) throw err;
+                        if (err) {
+                            res.send({
+                                mes: err,
+                                stat: false
+                            })
+                        }
                         if (!user) {
-                            res.send({mes:"Şifre Yanlış",
-                                stat:false})
+                            res.send({
+                                mes: "Şifre Yanlış",
+                                stat: false
+                            })
                         } else {
-
-                            res.send({mes:"BAŞARILI GİRİŞ",
-                                            stat:true,
-                                            onlineUser:user
+                            console.log(user);
+                            res.send({
+                                mes: "BAŞARILI GİRİŞ",
+                                stat: true,
+                                onlineUser: user
                             })
 
                         }
@@ -110,49 +124,51 @@ app.post('/createPermission', (req, res) => {
             foldCode: req.body.foldCode,
             areaCode: req.body.areaCode,
 
-            selectVehicleUsageName:req.body.selectVehicleUsageName,
-            selectVehicleUsageID:req.body.selectVehicleUsageID,
+            selectVehicleUsageName: req.body.selectVehicleUsageName,
+            selectVehicleUsageID: req.body.selectVehicleUsageID,
 
-            permissionDescription:req.body.permissionDescription,
-            personalCarUsage:req.body.personalCarUsage,
+            permissionDescription: req.body.permissionDescription,
+            personalCarUsage: req.body.personalCarUsage,
 
-            selectThePermissionType:req.body.selectThePermissionType,
+            selectThePermissionType: req.body.selectThePermissionType,
 
             totalDistanceOfIndividualCar: req.body.totalDistanceOfIndividualCar,
-            priceOfTrainOrBus:req.body.priceOfTrainOrBus,
+            priceOfTrainOrBus: req.body.priceOfTrainOrBus,
 
             displayThePermissionName: req.body.displayThePermissionName,
             setPermissionType: req.body.setPermissionType,
 
-            chiefConfirmStatus:-1,
-            chiefsDescription:"",
+            chiefConfirmStatus: -1,
+            chiefsDescription: "",
 
-            generalManagerConfirmStatus:-1,
-            generalManagerDescription:""
+            generalManagerConfirmStatus: -1,
+            generalManagerDescription: ""
 
         })
 
-        flag=true;
+        flag = true;
 
     } catch (e) {
         res.send("HATA OLUŞTU İZİN TALEP EDİLİRKEN !!")
-        flag=false
+        flag = false
     }
-    if (flag){
+    if (flag) {
         newUserPermission.save();
 
-        res.send({stat:true,
-        mes:"İzin yaratma başarılı",
-        user:newUserPermission});
-    }
-    else{
-        res.send({stat:false,
-            mes:"İzin yaratma Başarısız"});
+        res.send({
+            stat: true,
+            mes: "İzin yaratma başarılı",
+            user: newUserPermission
+        });
+    } else {
+        res.send({
+            stat: false,
+            mes: "İzin yaratma Başarısız"
+        });
     }
 });
 /*------------------*/
 /*************************************/
-
 
 
 /*--------------------------------------*/
@@ -235,12 +251,14 @@ app.get(('/displayAllEmployee'), (req, res) => {
 
 /*THIS METHOD FINDS FILTERED PERMISSION AND UPDATES IT */
 app.put("/changeChiefStatus", (req, res) => {
-    permissionModel.findOneAndUpdate({ permissionID: req.body.permissionID},{chiefStatus:"220",__enc_message: false }, function(err,result)
-    {
+    permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
+        chiefStatus: "220",
+        __enc_message: false
+    }, function (err, result) {
         if (err) {
             res.send(err);
         } else {
-            res.json(result +" \n\t Başarıyla Revize Edilmiştir " );
+            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
         }
     });
 });
@@ -260,7 +278,6 @@ app.put('/resetUsersIDs', (req, res) => {
 });
 /*------------------*/
 /*************************************/
-
 
 
 /*-----------------------------------*/
@@ -285,7 +302,6 @@ app.delete('/deleteUser/:userID', async (req, res) => {
 });
 /*------------------*/
 /*************************************/
-
 
 
 app.delete("/deleteAllPermissions", async (req, res) => {
