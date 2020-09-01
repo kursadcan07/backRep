@@ -15,24 +15,33 @@ const mongooseFieldEncryption = require("mongoose-field-encryption").fieldEncryp
 const permissionSchema = new mongoose.Schema({
     permissionID:Number,
     userID:Number,
-    username:String,
-    userType:String,
-    demandID:String,
-    demandDate:String,
-    demandBegin:String,
-    demandEnd:String,
+    userStatus:Number,
 
-    foldCode:String,
-    areaCode:String,
-    vehicleUsageCode:String,
-    priceOfUsage:String,
-    personalCarUsage:String,
+    personalName:String,
+    demandDateOfPermission:String,
+    beginDateOfPermission:String,
+    endDateOfPermission:String,
 
-    chiefStatus:String,
-    bossStatus:String,
-    explanationOfEmployee:String,
-    explanationOfChief:String,
-    explanationOfGeneralManager:String
+
+    foldCode:Number,
+    areaCode:Number,
+
+    permissionDescription:String,
+
+    selectVehicleUsageName:String,
+    selectVehicleUsageID:String,
+
+    personalCarUsage:Boolean,
+    priceOfTrainOrBus:Number,
+    totalDistanceOfIndividualCar:Number,
+
+    setPermissionType:Number,
+
+    chiefConfirmStatus:Number,
+    chiefsDescription:String,
+
+    generalManagerConfirmStatus:Number,
+    generalManagerDescription:String
 });
 /*
  * HERE A PLUGIN TO AUTO-INCREMENT OF PERMISSION OF AT THE DB.
@@ -43,9 +52,7 @@ permissionSchema.plugin(AutoIncrement, {id:'counterOfPermissionID',inc_field: 'p
 *  HERE A PLUGIN TO DETERMINE WHICH FIELDS ARE ENCRYPTED.WITH SALT GENERATOR AND SECRET KEY WORD.
  */
 permissionSchema.plugin(mongooseFieldEncryption, {
-    fields: ["permissionID","userID","username","userType","demandID","demandDate","demandBegin","demandEnd","foldCode",
-        "areaCode","vehicleUsageCode","priceOfUsage","personalCarUsage","chiefStatus","bossStatus","explanationOfEmployee",
-        "explanationOfChief","explanationOfGeneralManager"],
+    fields: ["permissionID","userID"],
     secret: "some secret key",
     saltGenerator: function(secret) {
         return "1234567890123456"; // should ideally use the secret to return a string of length 16

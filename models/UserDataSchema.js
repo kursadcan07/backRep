@@ -27,7 +27,7 @@ const newUserSchema = new mongoose.Schema({
         required: true,
         validate: [checkEmailType, 'Password is not in true form']
     },
-    userName: {
+    personalName: {
         type: String,
         required: true,
     },

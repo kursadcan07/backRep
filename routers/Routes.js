@@ -18,29 +18,34 @@ app.use(cors());
 
 /* THIS METHOD ADDS NEW USER TO THE SYSTEM */
 app.post('/addNewUser', async (req, res) => {
+    let flag = false;
+    let newUser;
     await userModel.getUserByMail(req.body.userMail, (err, user) => {
         if (err) throw err;
         if (user) {
             res.send("Mail Adresi Kullanımdadır Başka Deneyiniz !")
         } else {
             try {
-                let newUser = new userModel({
-                    userID:req.body.userID,
+                newUser = new userModel({
                     userMail: req.body.userMail,
                     password: req.body.password,
-                    userName: req.body.userName,
+                    personalName: req.body.personalName,
                     userStatus: req.body.userStatus,
                     userArea: req.body.userArea
                 })
+                flag=true;
 
+            } catch (e) {
+
+                flag=false;
+            }
+            if (flag){
                 newUser.save();
-
                 res.send({
                     mes:"YENİ KAYIT BAŞARIYLA YARATILDI",
                     stat:true
                 });
-
-            } catch (e) {
+            }else{
                 res.send({
                     mes:"YENİ KAYIT YARATILAMADI",
                     stat:false
@@ -56,7 +61,8 @@ app.post('/login', async (req, res) => {
 
     let newUser = new userModel({
         userMail: req.body.userMail,
-        password: req.body.password
+        password: req.body.password,
+        personalName:"__"
     });
 
     await userModel.getUserByMail(newUser.userMail, (err, user) => {
@@ -85,81 +91,63 @@ app.post('/login', async (req, res) => {
         }
     );
 });
-/*
-userID: {
-    type: Number,
-        unique:true
-},
-userMail: {
-    type: String,
-        lowercase: true,
-        required: true,
-        validate: [checkEmailType, 'Password is not in true form']
-},
-userName: {
-    type: String,
-        required: true,
-},
-userStatus: {
-    type: String,
-        required: true
-},
-userArea: {
-    type: String,
-        required: true
-},
-password: {
-    type: String,
-        required: true,
-        validate: [validatePassword, 'Password is not in true form']
-}
-});*/
-/*------------------*/
 
 /* THIS METHOD CREATES NEW PERMISSION DEMANDS*/
 app.post('/createPermission', (req, res) => {
+    let flag;
+    let newUserPermission;
     try {
-        let mockUserID = "100";
-        let mockUsername = "VELİ";
-        let mockUserType = "1";
-        let mockDemandID = "100";
-        let mockDemandDate = new Date(2020, 2, 21).toString();
-        let mockFoldCode = "110";
-        let mockAreaCode = "21";
+        newUserPermission = new permissionModel({
+            userID: req.body.userID,
+            userStatus: req.body.userStatus,
+            personalName: req.body.personalName,
+            demandID: req.body.demandID,
+            demandDateOfPermission: req.body.demandDateOfPermission,
 
-        let mockChiefStatus = "1";
-        let mockBossStatus = "3";
+            beginDateOfPermission: req.body.beginDateOfPermission,
+            endDateOfPermission: req.body.endDateOfPermission,
 
-        let descriptionOfChief = "İZİN VERMEME YOĞUNLUK VAR";
-        let descriptionOfManager = "SAATİ 22 YE REVİZE EDERSENİZ UYGUNDUR !";
+            foldCode: req.body.foldCode,
+            areaCode: req.body.areaCode,
 
+            selectVehicleUsageName:req.body.selectVehicleUsageName,
+            selectVehicleUsageID:req.body.selectVehicleUsageID,
 
-        let newUserPermission = new permissionModel({
-            userID: mockUserID,
-            username: mockUsername,
-            userType: mockUserType,
-            demandID: mockDemandID,
-            demandDate: mockDemandDate,
+            permissionDescription:req.body.permissionDescription,
+            personalCarUsage:req.body.personalCarUsage,
 
-            demandBegin: req.body.beginDate,
-            demandEnd: req.body.endDate,
+            selectThePermissionType:req.body.selectThePermissionType,
 
-            foldCode: mockFoldCode,
-            areaCode: mockAreaCode,
-            vehicleUsageCode: req.body.vehicleUsageIndex,
-            priceOfUsage: req.body.priceOfTransportation,
-            personalCarUsage: req.body.individualCarUsage,
+            totalDistanceOfIndividualCar: req.body.totalDistanceOfIndividualCar,
+            priceOfTrainOrBus:req.body.priceOfTrainOrBus,
 
-            explanationOfEmployee: req.body.descriptionOfEmployee,
-            chiefStatus: mockChiefStatus,
-            bossStatus: mockBossStatus,
-            explanationOfChief: descriptionOfChief,
-            explanationOfGeneralManager: descriptionOfManager
+            displayThePermissionName: req.body.displayThePermissionName,
+            setPermissionType: req.body.setPermissionType,
+
+            chiefConfirmStatus:-1,
+            chiefsDescription:"",
+
+            generalManagerConfirmStatus:-1,
+            generalManagerDescription:""
+
         })
-        newUserPermission.save();
-        res.send(newUserPermission);
+
+        flag=true;
+
     } catch (e) {
-        res.send("HATA OLUŞRU İZİN TALEP EDİLİRKEN !!")
+        res.send("HATA OLUŞTU İZİN TALEP EDİLİRKEN !!")
+        flag=false
+    }
+    if (flag){
+        newUserPermission.save();
+
+        res.send({stat:true,
+        mes:"İzin yaratma başarılı",
+        user:newUserPermission});
+    }
+    else{
+        res.send({stat:false,
+            mes:"İzin yaratma Başarısız"});
     }
 });
 /*------------------*/
