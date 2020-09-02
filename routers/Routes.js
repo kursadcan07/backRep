@@ -185,9 +185,16 @@ app.get('/displayUsersPermissions/:userID', async (req, res) => {
     await permissionModel.getPermissionsByUserID(newUserPermission.userID, (err, data) => {
             if (err) throw err;
             if (!data) {
-                res.send("KULLANICININ GEÇMİŞ İZNİ BULUNMAMAKTADIR");
+                res.send({
+                    stat: false,
+                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+                });
             } else {
-                res.send(data);
+                res.send({
+                    stat: true,
+                    mes: "İzinler başarıyla getirildi",
+                    prevPerms:data
+                });
             }
         }
     );

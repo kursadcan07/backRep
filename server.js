@@ -20,6 +20,6 @@ db.once('open', function() {
     console.log("Connection Successful!");
 });
 
-app.listen(5000, () => { console.log('Server is running...') });
+app.listen(4000, () => { console.log('Server is running...') });
 
 
