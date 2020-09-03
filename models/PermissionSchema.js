@@ -13,7 +13,9 @@ const mongooseFieldEncryption = require("mongoose-field-encryption").fieldEncryp
 *
 * */
 const permissionSchema = new mongoose.Schema({
+
     permissionID:Number,
+    isPermissionActive:Boolean,
     userID:Number,
     userStatus:Number,
 
@@ -21,7 +23,6 @@ const permissionSchema = new mongoose.Schema({
     demandDateOfPermission:String,
     beginDateOfPermission:String,
     endDateOfPermission:String,
-
 
     foldCode:Number,
     areaCode:Number,
@@ -79,3 +80,18 @@ module.exports.getPermissionsByUserID =  async function (rawUserID, callback)  {
     const query = {userID: messageToSearchWith.userID};
     await permissionModel.find(query,callback);
 }
+
+module.exports.getPermissionsByUserIDAndData =  async function (rawUserID,permissionStat, callback)  {
+    const messageToSearchWith = new permissionModel({userID:rawUserID,isPermissionActive:permissionStat});
+    messageToSearchWith.encryptFieldsSync();
+    const query = {userID: messageToSearchWith.userID,isPermissionActive:permissionStat};
+    await permissionModel.find(query,callback);
+}
+
+/*
+module.exports.getPermissionByPermissionID =  async function (rawPermissionID, callback)  {
+    const messageToSearchWith = new permissionModel({permissionID:rawPermissionID});
+    const query = {permissionID: messageToSearchWith.permissionID};
+    await permissionModel.find (query,callback);
+}
+*/

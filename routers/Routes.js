@@ -118,9 +118,10 @@ app.post('/createPermission', (req, res) => {
             demandID: req.body.demandID,
             demandDateOfPermission: req.body.demandDateOfPermission,
 
+            isPermissionActive:req.body.isPermissionActive,
+
             beginDateOfPermission: req.body.beginDateOfPermission,
             endDateOfPermission: req.body.endDateOfPermission,
-
             foldCode: req.body.foldCode,
             areaCode: req.body.areaCode,
 
@@ -138,11 +139,11 @@ app.post('/createPermission', (req, res) => {
             displayThePermissionName: req.body.displayThePermissionName,
             setPermissionType: req.body.setPermissionType,
 
-            chiefConfirmStatus: -1,
-            chiefsDescription: "",
+            chiefConfirmStatus: 3,
+            chiefsDescription: "şef açıklama",
 
-            generalManagerConfirmStatus: -1,
-            generalManagerDescription: ""
+            generalManagerConfirmStatus: 3,
+            generalManagerDescription: "yönetici açıklama"
 
         })
 
@@ -200,6 +201,92 @@ app.get('/displayUsersPermissions/:userID', async (req, res) => {
     );
 
 });
+
+app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res) => {
+
+    let newUserPermission = new permissionModel({
+        userID: req.body.userID
+    })
+
+    await permissionModel.getPermissionsByUserIDAndData(newUserPermission.userID,req.body.isPermissionActive, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+                res.send({
+                    stat: false,
+                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+                });
+            } else {
+                res.send({
+                    stat: true,
+                    mes: "İzinler başarıyla getirildi",
+                    prevPerms:data
+                });
+            }
+        }
+    );
+});
+
+
+app.get(('/displayPermissionByID/:permissionID'), (req, res) => {
+    permissionModel.findOne({permissionID: req.params.permissionID}, function (err, data) {
+        if (err) {
+            throw Error(err)
+        } else if (data ===null || data===undefined || data.length === 0) {
+            res.send({
+                stat: false,
+                mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+            });
+        } else {
+            res.send({
+                stat: true,
+                mes: "Kullanıcının İzni Başarıyla Getirildi",
+                usersPermission:data
+            });
+        }
+    })
+})
+
+
+/*
+app.get('/displayPermissionByID/:permissionID', async (req, res) => {
+
+    let newUserPermission = new permissionModel({
+        permissionID: req.body.permissionID
+    })
+    newUserPermission.findOne({ permissionID: newUserPermission.permissionID}, function (err, data) {
+        if (err) throw err;
+        if (!data) {
+            res.send({
+                stat: false,
+                mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+            });
+        } else {
+            res.send({
+                stat: true,
+                mes: "Kullanıcının İzni Başarıyla Getirildi",
+                usersPermission:data
+            });
+        }
+    });*/
+/*
+    await permissionModel.getPermissionByPermissionID(newUserPermission.permissionID, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+                res.send({
+                    stat: false,
+                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+                });
+            } else {
+                res.send({
+                    stat: true,
+                    mes: "Kullanıcının İzni Başarıyla Getirildi",
+                    usersPermission:data.personalName
+                });
+            }
+        }
+    );*/
+
+
 /*------------------*/
 
 /*THIS METHOD DISPLAYS ALL PERMISSIONS IN THE SYSTEM INDEPENDENTLY FROM USER */
