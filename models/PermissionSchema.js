@@ -20,9 +20,9 @@ const permissionSchema = new mongoose.Schema({
     userStatus:Number,
 
     personalName:String,
-    demandDateOfPermission:String,
-    beginDateOfPermission:String,
-    endDateOfPermission:String,
+    demandDateOfPermission:Date,
+    beginDateOfPermission:Date,
+    endDateOfPermission:Date,
 
     foldCode:Number,
     areaCode:Number,

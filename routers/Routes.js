@@ -148,7 +148,7 @@ app.post('/createPermission', (req, res) => {
             generalManagerDescription: "yönetici açıklama"
 
         })
-
+        console.log(req.body.beginDateOfPermission)
         flag = true;
 
     } catch (e) {
