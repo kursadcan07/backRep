@@ -81,10 +81,10 @@ module.exports.getPermissionsByUserID =  async function (rawUserID, callback)  {
     await permissionModel.find(query,callback);
 }
 
-module.exports.getPermissionsByUserIDAndData =  async function (rawUserID,permissionStat, callback)  {
-    const messageToSearchWith = new permissionModel({userID:rawUserID,isPermissionActive:permissionStat});
+module.exports.getPermissionsByUserIDAndData =  async function (userData, callback)  {
+    const messageToSearchWith = new permissionModel({userID:userData.userID});
     messageToSearchWith.encryptFieldsSync();
-    const query = {userID: messageToSearchWith.userID,isPermissionActive:permissionStat};
+    const query = {userID: messageToSearchWith.userID,isPermissionActive:userData.isPermissionActive};
     await permissionModel.find(query,callback);
 }
 

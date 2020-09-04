@@ -33,6 +33,8 @@ app.post('/addNewUser', async (req, res) => {
                 userPassword: req.body.userPassword,
                 personalName: req.body.personalName,
                 userStatus: req.body.userStatus,
+                usersChiefID:req.body.usersChiefID,
+                usersGeneralManagerID:req.body.usersGeneralManagerID,
                 userArea: req.body.userArea
             })
             newUser.save(function (err) {
@@ -205,10 +207,11 @@ app.get('/displayUsersPermissions/:userID', async (req, res) => {
 app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res) => {
 
     let newUserPermission = new permissionModel({
-        userID: req.body.userID
+        userID: req.body.userID,
+        isPermissionActive:req.body.isPermissionActive
     })
 
-    await permissionModel.getPermissionsByUserIDAndData(newUserPermission.userID,req.body.isPermissionActive, (err, data) => {
+    await permissionModel.getPermissionsByUserIDAndData(newUserPermission, (err, data) => {
             if (err) throw err;
             if (!data) {
                 res.send({
@@ -226,15 +229,35 @@ app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res)
     );
 });
 
-
-app.get(('/displayPermissionByID/:permissionID'), (req, res) => {
-    permissionModel.findOne({permissionID: req.params.permissionID}, function (err, data) {
+app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
+    permissionModel.findOne({permissionID: parseInt(req.params.permissionID)}, function (err, data) {
         if (err) {
             throw Error(err)
         } else if (data ===null || data===undefined || data.length === 0) {
             res.send({
                 stat: false,
-                mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+                mes: "Kullanıcının geçmiş izin talebi buluwqeqwewqewqewqnamadı"
+            });
+        } else {
+            res.send({
+                stat: true,
+                mes: "Kullanıcının İzni Başarıyla Getirildiwqwq",
+                usersPermission:data
+            });
+        }
+    })
+})
+
+/*
+
+app.get(('/getNameAndSignatureByID/:givenIDofManager'), (req, res) => {
+    userModel.findOne({userID: req.params.givenIDofManager}, function (err, data) {
+        if (err) {
+            throw Error(err)
+        } else if (data ===null || data===undefined || data.length === 0) {
+            res.send({
+                stat: false,
+                mes: "Kullanıcının Yöneticisine Erişilemedi !"
             });
         } else {
             res.send({
@@ -242,10 +265,15 @@ app.get(('/displayPermissionByID/:permissionID'), (req, res) => {
                 mes: "Kullanıcının İzni Başarıyla Getirildi",
                 usersPermission:data
             });
+
         }
     })
 })
 
+*/
+
+
+/*getNameAndSignatureByID/' + givenIDofManager*/
 
 /*
 app.get('/displayPermissionByID/:permissionID', async (req, res) => {

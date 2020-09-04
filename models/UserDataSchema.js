@@ -40,6 +40,14 @@ const newUserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    usersChiefID:{
+        type:Number,
+        required:true,
+    },
+    usersGeneralManagerID:{
+      type:Number,
+      required:true,
+    },
     userPassword: {
         type: String,
         required: true
