@@ -239,6 +239,7 @@ app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
                 mes: "Kullanıcının geçmiş izin talebi buluwqeqwewqewqewqnamadı"
             });
         } else {
+
             res.send({
                 stat: true,
                 mes: "Kullanıcının İzni Başarıyla Getirildiwqwq",
