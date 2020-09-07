@@ -36,7 +36,7 @@ const permissionSchema = new mongoose.Schema({
     priceOfTrainOrBus:Number,
     totalDistanceOfIndividualCar:Number,
 
-    setPermissionType:Number,
+    setPermissionType:String,
 
     chiefConfirmStatus:Number,
     chiefsDescription:String,
@@ -53,7 +53,7 @@ permissionSchema.plugin(AutoIncrement, {id:'counterOfPermissionID',inc_field: 'p
 *  HERE A PLUGIN TO DETERMINE WHICH FIELDS ARE ENCRYPTED.WITH SALT GENERATOR AND SECRET KEY WORD.
  */
 permissionSchema.plugin(mongooseFieldEncryption, {
-    fields: ["permissionID","userID"],
+    fields: ["permissionID"],
     secret: "some secret key",
     saltGenerator: function(secret) {
         return "1234567890123456"; // should ideally use the secret to return a string of length 16
@@ -74,17 +74,25 @@ module.exports.resetIdCounter=function(){
 /*
 *   THIS METHOD DISPLAYS PERMISSIONS THAT BELONGS TO USER WHICH GIVEN AS "rawUserID" PARAMETER.
  */
-module.exports.getPermissionsByUserID =  async function (rawUserID, callback)  {
-    const messageToSearchWith = new permissionModel({userID:rawUserID});
-    messageToSearchWith.encryptFieldsSync();
+module.exports.getPermissionsByUserID =  async function (userIDS, callback)  {
+    const messageToSearchWith = new permissionModel({userID:userIDS});
     const query = {userID: messageToSearchWith.userID};
+    console.log(query,"aranannnnnn")
     await permissionModel.find(query,callback);
 }
+
+module.exports.getPermissionsByUserIDandRawData =  async function (userData, callback)  {
+    const messageToSearchWith = new permissionModel({userID:userData.userID,isPermissionActive: userData.isPermissionActive});
+    const query = {userID: messageToSearchWith.userID , isPermissionActive :messageToSearchWith.isPermissionActive};
+
+    await permissionModel.find(query,callback);
+}
+
 
 module.exports.getPermissionsByUserIDAndData =  async function (userData, callback)  {
     const messageToSearchWith = new permissionModel({userID:userData.userID});
     messageToSearchWith.encryptFieldsSync();
-    const query = {userID: messageToSearchWith.userID,isPermissionActive:userData.isPermissionActive};
+    const query = {userID: messageToSearchWith.userID, isPermissionActive:userData.isPermissionActive};
     await permissionModel.find(query,callback);
 }
 

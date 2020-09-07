@@ -133,13 +133,12 @@ app.post('/createPermission', (req, res) => {
             permissionDescription: req.body.permissionDescription,
             personalCarUsage: req.body.personalCarUsage,
 
-            selectThePermissionType: req.body.selectThePermissionType,
+            setPermissionType: req.body.setPermissionType,
 
             totalDistanceOfIndividualCar: req.body.totalDistanceOfIndividualCar,
             priceOfTrainOrBus: req.body.priceOfTrainOrBus,
 
             displayThePermissionName: req.body.displayThePermissionName,
-            setPermissionType: req.body.setPermissionType,
 
             chiefConfirmStatus: 3,
             chiefsDescription: "şef açıklama",
@@ -148,7 +147,7 @@ app.post('/createPermission', (req, res) => {
             generalManagerDescription: "yönetici açıklama"
 
         })
-        console.log(req.body.beginDateOfPermission)
+
         flag = true;
 
     } catch (e) {
@@ -179,41 +178,17 @@ app.post('/createPermission', (req, res) => {
 /*______________________________________*/
 
 /* THIS METHOD DISPLAYS USERS PERMISSIONS WHOM GIVEN BY DYNAMIC ":userID" KEYWORD */
-app.get('/displayUsersPermissions/:userID', async (req, res) => {
-
-    let newUserPermission = new permissionModel({
-        userID: req.body.userID
-    })
-
-    await permissionModel.getPermissionsByUserID(newUserPermission.userID, (err, data) => {
-            if (err) throw err;
-            if (!data) {
-                res.send({
-                    stat: false,
-                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
-                });
-            } else {
-                res.send({
-                    stat: true,
-                    mes: "İzinler başarıyla getirildi",
-                    prevPerms:data
-                });
-            }
-        }
-    );
-
-});
-
 app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res) => {
 
     let newUserPermission = new permissionModel({
-        userID: req.body.userID,
-        isPermissionActive:req.body.isPermissionActive
+        userID: req.params.userID,
+        isPermissionActive:req.params.isPermissionActive
     })
 
-    await permissionModel.getPermissionsByUserIDAndData(newUserPermission, (err, data) => {
+    await permissionModel.getPermissionsByUserIDandRawData(newUserPermission, (err, data) => {
             if (err) throw err;
             if (!data) {
+
                 res.send({
                     stat: false,
                     mes: "Kullanıcının geçmiş izin talebi bulunamadı"
@@ -239,7 +214,7 @@ app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
                 mes: "Kullanıcının geçmiş izin talebi buluwqeqwewqewqewqnamadı"
             });
         } else {
-
+            console.log(data)
             res.send({
                 stat: true,
                 mes: "Kullanıcının İzni Başarıyla Getirildiwqwq",
@@ -248,72 +223,6 @@ app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
         }
     })
 })
-
-/*
-
-app.get(('/getNameAndSignatureByID/:givenIDofManager'), (req, res) => {
-    userModel.findOne({userID: req.params.givenIDofManager}, function (err, data) {
-        if (err) {
-            throw Error(err)
-        } else if (data ===null || data===undefined || data.length === 0) {
-            res.send({
-                stat: false,
-                mes: "Kullanıcının Yöneticisine Erişilemedi !"
-            });
-        } else {
-            res.send({
-                stat: true,
-                mes: "Kullanıcının İzni Başarıyla Getirildi",
-                usersPermission:data
-            });
-
-        }
-    })
-})
-
-*/
-
-
-/*getNameAndSignatureByID/' + givenIDofManager*/
-
-/*
-app.get('/displayPermissionByID/:permissionID', async (req, res) => {
-
-    let newUserPermission = new permissionModel({
-        permissionID: req.body.permissionID
-    })
-    newUserPermission.findOne({ permissionID: newUserPermission.permissionID}, function (err, data) {
-        if (err) throw err;
-        if (!data) {
-            res.send({
-                stat: false,
-                mes: "Kullanıcının geçmiş izin talebi bulunamadı"
-            });
-        } else {
-            res.send({
-                stat: true,
-                mes: "Kullanıcının İzni Başarıyla Getirildi",
-                usersPermission:data
-            });
-        }
-    });*/
-/*
-    await permissionModel.getPermissionByPermissionID(newUserPermission.permissionID, (err, data) => {
-            if (err) throw err;
-            if (!data) {
-                res.send({
-                    stat: false,
-                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
-                });
-            } else {
-                res.send({
-                    stat: true,
-                    mes: "Kullanıcının İzni Başarıyla Getirildi",
-                    usersPermission:data.personalName
-                });
-            }
-        }
-    );*/
 
 
 /*------------------*/
