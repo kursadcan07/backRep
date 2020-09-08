@@ -33,8 +33,8 @@ app.post('/addNewUser', async (req, res) => {
                 userPassword: req.body.userPassword,
                 personalName: req.body.personalName,
                 userStatus: req.body.userStatus,
-                usersChiefID:req.body.usersChiefID,
-                usersGeneralManagerID:req.body.usersGeneralManagerID,
+                chiefID:req.body.chiefID,
+                generalManagerID:req.body.generalManagerID,
                 userArea: req.body.userArea
             })
             newUser.save(function (err) {
@@ -114,8 +114,11 @@ app.post('/createPermission', (req, res) => {
     let newUserPermission;
     try {
         newUserPermission = new permissionModel({
+
             userID: req.body.userID,
-            userStatus: req.body.userStatus,
+            chiefID:req.body.chiefID,
+            generalManagerID:req.body.generalManagerID,
+
             personalName: req.body.personalName,
             demandID: req.body.demandID,
             demandDateOfPermission: req.body.demandDateOfPermission,
@@ -156,7 +159,7 @@ app.post('/createPermission', (req, res) => {
     }
     if (flag) {
         newUserPermission.save();
-
+        console.log(newUserPermission)
         res.send({
             stat: true,
             mes: "İzin yaratma başarılı",
@@ -185,7 +188,7 @@ app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res)
         isPermissionActive:req.params.isPermissionActive
     })
 
-    await permissionModel.getPermissionsByUserIDandRawData(newUserPermission, (err, data) => {
+    await permissionModel.getPermissionsByUserIDandData(newUserPermission, (err, data) => {
             if (err) throw err;
             if (!data) {
 
@@ -203,6 +206,63 @@ app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res)
         }
     );
 });
+
+
+
+
+app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, res) => {
+
+    let newUserPermission = new permissionModel({
+        chiefID: req.params.chiefID,
+        isPermissionActive:req.params.isPermissionActive
+    })
+
+    await permissionModel.getPermissionsByChiefIDandData(newUserPermission, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+
+                res.send({
+                    stat: false,
+                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+                });
+            } else {
+                res.send({
+                    stat: true,
+                    mes: "İzinler başarıyla getirildi",
+                    prevPerms:data
+                });
+            }
+        }
+    );
+});
+/*
+
+app.get('/displayManagersPermissions/:chiefID/:isPermissionActive', async (req, res) => {
+
+    let newUserPermission = new permissionModel({
+        userID: req.params.chiefID,
+        isPermissionActive:req.params.isPermissionActive
+    })
+
+    await permissionModel.getPermissionsByUserIDandRawData(newUserPermission, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+                res.send({
+                    stat: false,
+                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+                });
+            } else {
+                res.send({
+                    stat: true,
+                    mes: "İzinler başarıyla getirildi",
+                    prevPerms:data
+                });
+            }
+        }
+    );
+});
+*/
+
 
 app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
     permissionModel.findOne({permissionID: parseInt(req.params.permissionID)}, function (err, data) {
@@ -224,7 +284,7 @@ app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
     })
 })
 
-
+//  return api.get('/displayUsersPermissions/' + this.props.chiefID + '/' + isActive)
 /*------------------*/
 
 /*THIS METHOD DISPLAYS ALL PERMISSIONS IN THE SYSTEM INDEPENDENTLY FROM USER */

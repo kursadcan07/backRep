@@ -17,6 +17,10 @@ const permissionSchema = new mongoose.Schema({
     permissionID:Number,
     isPermissionActive:Boolean,
     userID:Number,
+
+    chiefID:Number,
+    generalManagerID:Number,
+
     userStatus:Number,
 
     personalName:String,
@@ -77,17 +81,44 @@ module.exports.resetIdCounter=function(){
 module.exports.getPermissionsByUserID =  async function (userIDS, callback)  {
     const messageToSearchWith = new permissionModel({userID:userIDS});
     const query = {userID: messageToSearchWith.userID};
-    console.log(query,"aranannnnnn")
     await permissionModel.find(query,callback);
 }
 
-module.exports.getPermissionsByUserIDandRawData =  async function (userData, callback)  {
+module.exports.getPermissionsByUserIDandData =  async function (userData, callback)  {
+
     const messageToSearchWith = new permissionModel({userID:userData.userID,isPermissionActive: userData.isPermissionActive});
     const query = {userID: messageToSearchWith.userID , isPermissionActive :messageToSearchWith.isPermissionActive};
 
     await permissionModel.find(query,callback);
 }
 
+module.exports.getPermissionsByChiefIDandData =  async function (userData, callback)  {
+
+    const messageToSearchWith = new permissionModel({chiefID:userData.chiefID,isPermissionActive: userData.isPermissionActive});
+    const query = {chiefID: messageToSearchWith.chiefID , isPermissionActive :messageToSearchWith.isPermissionActive};
+
+    await permissionModel.find(query,callback);
+}
+
+
+/*
+module.exports.getPermissionsByUserIDandRawData =  async function (userData, callback)  {
+
+    const messageToSearchWith = new permissionModel({chiefID:userData.chiefID,isPermissionActive: userData.isPermissionActive});
+    const query = {chiefID: messageToSearchWith.chiefID , isPermissionActive :messageToSearchWith.isPermissionActive};
+
+    await permissionModel.find(query,callback);
+}
+*/
+
+
+/*module.exports.getPermissionsByChiefID =  async function (chiefID, callback)  {
+    const messageToSearchWith = new permissionModel({userID:chiefID});
+    const query = {userID: messageToSearchWith.userID};
+    console.log(query,"aranannnnnn")
+    await permissionModel.find(query,callback);
+}*/
+/*
 
 module.exports.getPermissionsByUserIDAndData =  async function (userData, callback)  {
     const messageToSearchWith = new permissionModel({userID:userData.userID});
@@ -95,6 +126,7 @@ module.exports.getPermissionsByUserIDAndData =  async function (userData, callba
     const query = {userID: messageToSearchWith.userID, isPermissionActive:userData.isPermissionActive};
     await permissionModel.find(query,callback);
 }
+*/
 
 /*
 module.exports.getPermissionByPermissionID =  async function (rawPermissionID, callback)  {

@@ -33,18 +33,18 @@ const newUserSchema = new mongoose.Schema({
         required: true,
     },
     userStatus: {
-        type: String,
+        type: Number,
         required: true
     },
     userArea: {
         type: String,
         required: true
     },
-    usersChiefID:{
+    chiefID:{
         type:Number,
         required:true,
     },
-    usersGeneralManagerID:{
+    generalManagerID:{
       type:Number,
       required:true,
     },
