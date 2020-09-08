@@ -207,9 +207,6 @@ app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res)
     );
 });
 
-
-
-
 app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, res) => {
 
     let newUserPermission = new permissionModel({
@@ -235,33 +232,6 @@ app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, 
         }
     );
 });
-/*
-
-app.get('/displayManagersPermissions/:chiefID/:isPermissionActive', async (req, res) => {
-
-    let newUserPermission = new permissionModel({
-        userID: req.params.chiefID,
-        isPermissionActive:req.params.isPermissionActive
-    })
-
-    await permissionModel.getPermissionsByUserIDandRawData(newUserPermission, (err, data) => {
-            if (err) throw err;
-            if (!data) {
-                res.send({
-                    stat: false,
-                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
-                });
-            } else {
-                res.send({
-                    stat: true,
-                    mes: "İzinler başarıyla getirildi",
-                    prevPerms:data
-                });
-            }
-        }
-    );
-});
-*/
 
 
 app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
@@ -344,15 +314,25 @@ app.get(('/displayAllEmployee'), (req, res) => {
 /*THIS METHOD FINDS FILTERED PERMISSION AND UPDATES IT */
 app.put("/changeChiefStatus", (req, res) => {
     permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
-        chiefStatus: "220",
-        __enc_message: false
-    }, function (err, result) {
+        chiefConfirmStatus: req.body.chiefConfirmStatus,
+    },{new: true}, function (err, result) {
         if (err) {
             res.send(err);
         } else {
+            console.log(result)
             res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
         }
     });
+
+
+    {/* var query = {'username': req.user.username};
+                    req.newData.username = req.user.username;
+
+                    MyModel.findOneAndUpdate(query, req.newData, {upsert: true}, function(err, doc) {
+                    if (err) return res.send(500, {error: err});
+                    return res.send('Succesfully saved.');
+                });*/}
+
 });
 /*------------------*/
 
