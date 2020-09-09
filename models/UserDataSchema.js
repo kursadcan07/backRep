@@ -53,18 +53,6 @@ const newUserSchema = new mongoose.Schema({
         required: true
     }
 });
-/*
-*HERE THE METHODS THAT VALIDATES E-MAIL AND PASSWORD.
-*/
-/*
-function checkEmailType(value) {
-    return (emailRegex.test(value));
-}
-
-function validatePassword(value) {
-    return (value.length<8);
-}
-*/
 
 /*
 * PLUGIN IMPLEMENTED HERE TO ENCRYPT FIELDS.

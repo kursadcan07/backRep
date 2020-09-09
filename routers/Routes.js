@@ -144,7 +144,7 @@ app.post('/createPermission', (req, res) => {
             displayThePermissionName: req.body.displayThePermissionName,
 
             chiefConfirmStatus: 3,
-            chiefsDescription: "şef açıklama",
+            chiefsDescription: " ",
 
             generalManagerConfirmStatus: 3,
             generalManagerDescription: "yönetici açıklama"
@@ -315,6 +315,7 @@ app.get(('/displayAllEmployee'), (req, res) => {
 app.put("/changeChiefStatus", (req, res) => {
     permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
         chiefConfirmStatus: req.body.chiefConfirmStatus,
+        chiefsDescription:req.body.chiefsDescription,
     },{new: true}, function (err, result) {
         if (err) {
             res.send(err);
