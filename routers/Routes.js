@@ -175,7 +175,6 @@ app.post('/createPermission', (req, res) => {
 /*------------------*/
 /*************************************/
 
-
 /*--------------------------------------*/
 /*[ 2) GET-READ OPERATIONS DEFINED HERE ]*/
 /*______________________________________*/
@@ -233,6 +232,32 @@ app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, 
     );
 });
 
+app.get('/displayPermissionsForGeneralManager/:generalManagerID/:isPermissionActive', async (req, res) => {
+
+    let newUserPermission = new permissionModel({
+        generalManagerID: req.params.generalManagerID,
+        isPermissionActive:req.params.isPermissionActive
+    })
+
+    await permissionModel.getPermissionsByGeneralManagerIDandData(newUserPermission, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+
+                res.send({
+                    stat: false,
+                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+                });
+            } else {
+                res.send({
+                    stat: true,
+                    mes: "İzinler başarıyla getirildi",
+                    prevPerms:data
+                });
+            }
+        }
+    );
+});
+
 
 app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
     permissionModel.findOne({permissionID: parseInt(req.params.permissionID)}, function (err, data) {
@@ -261,17 +286,13 @@ app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
 app.get('/displayAllPermissions', (req, res) => {
     permissionModel.find({}, function (err, data) {
         if (err) {
-            console.log(err);
             res.send("HATA");
         }
-
         if (data.length === 0) {
-            console.log("No record found")
             res.send("HATA");
         } else {
             res.send(data);
         }
-
 
     })
 });
@@ -324,6 +345,30 @@ app.put("/changeChiefStatus", (req, res) => {
             res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
         }
     });
+
+
+    {/* var query = {'username': req.user.username};
+                    req.newData.username = req.user.username;
+
+                    MyModel.findOneAndUpdate(query, req.newData, {upsert: true}, function(err, doc) {
+                    if (err) return res.send(500, {error: err});
+                    return res.send('Succesfully saved.');
+                });*/}
+
+});
+
+
+app.put("/changeGeneralManagerStatus", (req, res) => {
+    permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
+        generalManagerConfirmStatus: req.body.generalManagerConfirmStatus,
+        generalManagerDescription:req.body.generalManagerDescription,
+    },{new: true}, function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+        }
+});
 
 
     {/* var query = {'username': req.user.username};

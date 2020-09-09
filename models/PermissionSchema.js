@@ -100,6 +100,13 @@ module.exports.getPermissionsByChiefIDandData =  async function (userData, callb
     await permissionModel.find(query,callback);
 }
 
+module.exports.getPermissionsByGeneralManagerIDandData =  async function (userData, callback)  {
+
+    const messageToSearchWith = new permissionModel({generalManagerID:userData.generalManagerID,isPermissionActive: userData.isPermissionActive});
+    const query = {generalManagerID: messageToSearchWith.generalManagerID , isPermissionActive :messageToSearchWith.isPermissionActive};
+
+    await permissionModel.find(query,callback);
+}
 
 /*
 module.exports.getPermissionsByUserIDandRawData =  async function (userData, callback)  {
