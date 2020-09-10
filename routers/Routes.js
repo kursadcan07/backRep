@@ -8,6 +8,15 @@ const app = express();
 app.use(express.json());
 const cors = require('cors');
 app.use(cors());
+/*var multer = require('multer');*/
+let fs = require('fs');
+
+/*app.use(multer({
+    dest: './uploads/',
+    rename: function (fieldname, filename) {
+        return filename;
+    },
+}))*/
 
 /*-----CRUD OPERATIONS ROUTERS----------*/
 
@@ -15,6 +24,11 @@ app.use(cors());
 /*-------------------------------------------*/
 /*[  1) ADD-CREATE OPERATIONS DEFINED HERE  ]*/
 /*___________________________________________*/
+/*
+app.post('/api/photo',function(req,res){
+
+});
+*/
 
 /* THIS METHOD ADDS NEW USER TO THE SYSTEM */
 app.post('/addNewUser', async (req, res) => {
@@ -26,26 +40,25 @@ app.post('/addNewUser', async (req, res) => {
                 mes: "Mail Adresi Kullanımdadır Başka Adres Deneyiniz",
                 stat: false
             })
-        }
-        else {
+        } else {
             let newUser = new userModel({
                 userMail: req.body.userMail,
                 userPassword: req.body.userPassword,
                 personalName: req.body.personalName,
                 userStatus: req.body.userStatus,
-                chiefID:req.body.chiefID,
-                generalManagerID:req.body.generalManagerID,
+                chiefID: req.body.chiefID,
+                generalManagerID: req.body.generalManagerID,
                 userArea: req.body.userArea
             })
+
+
             newUser.save(function (err) {
                 if (err) {
                     res.send({
                         mes: err,
                         stat: false
                     });
-                }
-                else
-                {
+                } else {
                     res.send({
                         mes: "KAYIT BAŞARIYLA OLUŞTURULDU",
                         stat: true
@@ -55,6 +68,30 @@ app.post('/addNewUser', async (req, res) => {
         }
     });
 });
+
+
+app.post("/setSignatureOfUser/:userID", (req, res) => {
+    userModel.findOneAndUpdate({userID: req.params.userID}, {
+        signature: {
+            data: req.body.imgUpload,
+            doesSignatureExist: true,
+        },
+
+    }, {new: true}, function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            console.log(result)
+            res.send({
+                mes:"BAŞARIYLA EKLENDİ",
+                dataSended:result,
+            })
+        }
+
+    })
+})
+
+
 /*------------------*/
 
 /* THIS METHOD ALLOWS LOGIN OPERATION WITH EMAIL-PASSWORD VALIDATION */
@@ -94,6 +131,7 @@ app.post('/login', async (req, res) => {
                             })
                         } else {
                             console.log(user);
+
                             res.send({
                                 mes: "BAŞARILI GİRİŞ",
                                 stat: true,
@@ -116,14 +154,14 @@ app.post('/createPermission', (req, res) => {
         newUserPermission = new permissionModel({
 
             userID: req.body.userID,
-            chiefID:req.body.chiefID,
-            generalManagerID:req.body.generalManagerID,
+            chiefID: req.body.chiefID,
+            generalManagerID: req.body.generalManagerID,
 
             personalName: req.body.personalName,
             demandID: req.body.demandID,
             demandDateOfPermission: req.body.demandDateOfPermission,
 
-            isPermissionActive:req.body.isPermissionActive,
+            isPermissionActive: req.body.isPermissionActive,
 
             beginDateOfPermission: req.body.beginDateOfPermission,
             endDateOfPermission: req.body.endDateOfPermission,
@@ -184,7 +222,7 @@ app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res)
 
     let newUserPermission = new permissionModel({
         userID: req.params.userID,
-        isPermissionActive:req.params.isPermissionActive
+        isPermissionActive: req.params.isPermissionActive
     })
 
     await permissionModel.getPermissionsByUserIDandData(newUserPermission, (err, data) => {
@@ -199,7 +237,7 @@ app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res)
                 res.send({
                     stat: true,
                     mes: "İzinler başarıyla getirildi",
-                    prevPerms:data
+                    prevPerms: data
                 });
             }
         }
@@ -210,7 +248,7 @@ app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, 
 
     let newUserPermission = new permissionModel({
         chiefID: req.params.chiefID,
-        isPermissionActive:req.params.isPermissionActive
+        isPermissionActive: req.params.isPermissionActive
     })
 
     await permissionModel.getPermissionsByChiefIDandData(newUserPermission, (err, data) => {
@@ -225,7 +263,7 @@ app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, 
                 res.send({
                     stat: true,
                     mes: "İzinler başarıyla getirildi",
-                    prevPerms:data
+                    prevPerms: data
                 });
             }
         }
@@ -236,7 +274,7 @@ app.get('/displayPermissionsForGeneralManager/:generalManagerID/:isPermissionAct
 
     let newUserPermission = new permissionModel({
         generalManagerID: req.params.generalManagerID,
-        isPermissionActive:req.params.isPermissionActive
+        isPermissionActive: req.params.isPermissionActive
     })
 
     await permissionModel.getPermissionsByGeneralManagerIDandData(newUserPermission, (err, data) => {
@@ -248,38 +286,97 @@ app.get('/displayPermissionsForGeneralManager/:generalManagerID/:isPermissionAct
                     mes: "Kullanıcının geçmiş izin talebi bulunamadı"
                 });
             } else {
+                console.log(data);
                 res.send({
                     stat: true,
                     mes: "İzinler başarıyla getirildi",
-                    prevPerms:data
+                    prevPerms: data
                 });
             }
         }
     );
 });
+app.get('/LoginSignatureValidation/:userMail', async (req, res) => {
 
+    let userSignatureValidationModel = new userModel({
+        userMail: req.params.userMail,
+    })
 
+    await userModel.getUserByMail(userSignatureValidationModel.userMail, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+                res.send({
+                    stat: false,
+                    mes: "KULLANICNIN İZNİ SİSTEMDE YOK1111 !"
+                });
+            } else {
+                if (data.signature.data !== null && data.signature.data !== undefined && data.signature.data !== "") {
+                    res.send({
+                        stat: true,
+                        mes: "KULLANICNIN İZNİ SİSTEME YÜKLENMİŞ"
+                    })
+                } else {
+                    res.send({
+                        stat: false,
+                        mes: "KULLANICNIN İZNİ SİSTEMDE YOK323222332 !"
+                    })
+
+                }
+            }
+        }
+    );
+});
+/*
+app.post('/LoginSignatureValidation/:userMail', async (req, res) => {
+
+    let userSignatureValidationModel = new userModel({
+        userMail: req.params.userMail,
+    })
+
+    await userModel.getUserByMail(userSignatureValidationModel.userMail, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+                res.send({
+                    stat: false,
+                    mes: "KULLANICNIN İZNİ SİSTEMDE YOK1111 !"
+                });
+            } else {
+                if (data.signature.data !== null && data.signature.data !== undefined && data.signature.data !== "") {
+                    res.send({
+                        stat: true,
+                        mes: "KULLANICNIN İZNİ SİSTEME YÜKLENMİŞ"
+                    })
+                } else {
+                    res.send({
+                        stat: false,
+                        mes: "KULLANICNIN İZNİ SİSTEMDE YOK323222332 !"
+                    })
+
+                }
+            }
+        }
+    );
+});*/
 app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
     permissionModel.findOne({permissionID: parseInt(req.params.permissionID)}, function (err, data) {
         if (err) {
             throw Error(err)
-        } else if (data ===null || data===undefined || data.length === 0) {
+        } else if (data === null || data === undefined || data.length === 0) {
             res.send({
                 stat: false,
-                mes: "Kullanıcının geçmiş izin talebi buluwqeqwewqewqewqnamadı"
+                mes: "Kullanıcının geçmiş izin talebi"
             });
         } else {
             console.log(data)
             res.send({
                 stat: true,
                 mes: "Kullanıcının İzni Başarıyla Getirildiwqwq",
-                usersPermission:data
+                usersPermission: data
             });
         }
     })
 })
 
-//  return api.get('/displayUsersPermissions/' + this.props.chiefID + '/' + isActive)
 /*------------------*/
 
 /*THIS METHOD DISPLAYS ALL PERMISSIONS IN THE SYSTEM INDEPENDENTLY FROM USER */
@@ -336,50 +433,118 @@ app.get(('/displayAllEmployee'), (req, res) => {
 app.put("/changeChiefStatus", (req, res) => {
     permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
         chiefConfirmStatus: req.body.chiefConfirmStatus,
-        chiefsDescription:req.body.chiefsDescription,
-    },{new: true}, function (err, result) {
+        chiefsDescription: req.body.chiefsDescription,
+    }, {new: true}, function (err, result) {
         if (err) {
             res.send(err);
         } else {
-            console.log(result)
-            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+            if (result.generalManagerConfirmStatus !== 3) {
+                if (req.body.chiefConfirmStatus === 2) {
+                    permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
+                        isPermissionActive: false,
+                        generalManagerConfirmStatus: 2,
+                        generalManagerDescription: "İLGİLİ AMİRİN İZİNİ REDDETMESİ SEBEBİYLE OTOMATİK OLARAK REDDEDİLMİŞTİR !"
+
+                    }, {new: true}, function (err, result) {
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+                        }
+                    })
+                } else {
+                    permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
+                        isPermissionActive: false,
+
+                    }, {new: true}, function (err, result) {
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+                        }
+                    })
+                }
+            } else {
+                if (req.body.chiefConfirmStatus === 2) {
+                    permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
+                        isPermissionActive: false,
+                        generalManagerConfirmStatus: 2,
+                        generalManagerDescription: "İLGİLİ AMİRİN İZİNİ REDDETMESİ SEBEBİYLE OTOMATİK OLARAK REDDEDİLMİŞTİR !"
+
+                    }, {new: true}, function (err, result) {
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+                        }
+                    })
+                } else {
+                    res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+                }
+
+            }
         }
     });
-
-
-    {/* var query = {'username': req.user.username};
-                    req.newData.username = req.user.username;
-
-                    MyModel.findOneAndUpdate(query, req.newData, {upsert: true}, function(err, doc) {
-                    if (err) return res.send(500, {error: err});
-                    return res.send('Succesfully saved.');
-                });*/}
-
-});
+})
 
 
 app.put("/changeGeneralManagerStatus", (req, res) => {
     permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
         generalManagerConfirmStatus: req.body.generalManagerConfirmStatus,
-        generalManagerDescription:req.body.generalManagerDescription,
-    },{new: true}, function (err, result) {
+        generalManagerDescription: req.body.generalManagerDescription,
+    }, {new: true}, function (err, result) {
         if (err) {
             res.send(err);
         } else {
-            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+            if (result.chiefConfirmStatus !== 3) {
+                if (req.body.generalManagerConfirmStatus === 2) {
+                    permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
+                        isPermissionActive: false,
+                        chiefConfirmStatus: 2,
+                        chiefsDescription: "İLGİLİ GENEL YÖNETİCİNİN İZİNİ REDDETMESİ SEBEBİYLE OTOMATİK OLARAK REDDEDİLMİŞTİR !"
+
+                    }, {new: true}, function (err, result) {
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+                        }
+                    })
+                } else {
+                    permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
+                        isPermissionActive: false,
+
+                    }, {new: true}, function (err, result) {
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+                        }
+                    })
+                }
+            } else {
+                if (req.body.generalManagerConfirmStatus === 2) {
+                    permissionModel.findOneAndUpdate({permissionID: req.body.permissionID}, {
+                        isPermissionActive: false,
+                        chiefConfirmStatus: 2,
+                        chiefsDescription: "İLGİLİ GENEL YÖNETİCİNİN İZİNİ REDDETMESİ SEBEBİYLE OTOMATİK OLARAK REDDEDİLMİŞTİR !"
+
+                    }, {new: true}, function (err, result) {
+                        if (err) {
+                            res.send(err);
+                        } else {
+                            res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+                        }
+                    })
+                } else {
+                    res.json(result + " \n\t Başarıyla Revize Edilmiştir ");
+                }
+            }
         }
+
+    })
 });
 
-
-    {/* var query = {'username': req.user.username};
-                    req.newData.username = req.user.username;
-
-                    MyModel.findOneAndUpdate(query, req.newData, {upsert: true}, function(err, doc) {
-                    if (err) return res.send(500, {error: err});
-                    return res.send('Succesfully saved.');
-                });*/}
-
-});
 /*------------------*/
 
 /*THIS METHOD RESETS PERMISSIONS ID */

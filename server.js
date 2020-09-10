@@ -2,9 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose'),
     autoIncrement = require('mongoose-auto-increment');
 const kittyRoute = require('./routers/Routes.js');
+
 const app = express();
 app.use(express.json())
-
 
 
 app.use(kittyRoute);
@@ -15,10 +15,12 @@ const db = mongoose.connection;
 autoIncrement.initialize(db);
 
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
+db.once('open', function () {
     console.log("Connection Successful!");
 });
 
-app.listen(4000, () => { console.log('Server is running...') });
+app.listen(4000, () => {
+    console.log('Server is running...')
+});
 
 

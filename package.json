@@ -16,7 +16,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.0",
     "mongoose-auto-increment": "^5.0.1",
-    "mongoose-field-encryption": "3.0.6"
+    "mongoose-field-encryption": "3.0.6",
+    "multer": "^1.4.2"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
