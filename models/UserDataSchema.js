@@ -28,10 +28,7 @@ const newUserSchema = new mongoose.Schema({
         lowercase: true,
         required: true
     },
-    signature:
-        { data: Buffer,
-          contentType: String,
-          existence:Boolean},
+
     personalName: {
         type: String,
         required: true,

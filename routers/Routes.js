@@ -4,19 +4,76 @@
 const express = require('express');
 const userModel = require('../models/UserDataSchema');
 const permissionModel = require('../models/PermissionSchema');
+const signatureModel = require('../models/SignatureSchema');
 const app = express();
 app.use(express.json());
+
+
 const cors = require('cors');
 app.use(cors());
-/*var multer = require('multer');*/
-let fs = require('fs');
+let multer = require('multer');
 
-/*app.use(multer({
-    dest: './uploads/',
-    rename: function (fieldname, filename) {
-        return filename;
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/');
     },
-}))*/
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + file.originalname);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true);
+    } else {
+        // rejects storing a file
+        cb(null, false);
+    }
+}
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+})
+
+app.post('/uploadmulter/:userID', upload.single('imageData'), (req, res, next) => {
+    const newImage = new signatureModel({
+        userID:req.params.userID,
+        imageName: req.body.imageName,
+        imageData: req.file.path
+    });
+
+    newImage.save()
+        .then((result) => {
+            console.log(result);
+            console.log("BAŞARILIIIIIII")
+            res.status(200).json({
+                success: true,
+                document: result
+            });
+        })
+        .catch((err) => next(err));
+});
+
+/*
+app.post('/setUserSignature/:userID', upload.single('imageData'), (req, res, next) => {
+    userModel.findOneAndUpdate({userID: req.params.userID}, {
+        imageName: req.body.imageName,
+        imageData: req.file.path,
+    }, {new: true}, function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send({
+                mes: "Kullanıcının imzası başarıyla eklendi!!!",
+                dataSended: result,
+            })
+        }
+    })
+})*/
 
 /*-----CRUD OPERATIONS ROUTERS----------*/
 
@@ -24,11 +81,7 @@ let fs = require('fs');
 /*-------------------------------------------*/
 /*[  1) ADD-CREATE OPERATIONS DEFINED HERE  ]*/
 /*___________________________________________*/
-/*
-app.post('/api/photo',function(req,res){
 
-});
-*/
 
 /* THIS METHOD ADDS NEW USER TO THE SYSTEM */
 app.post('/addNewUser', async (req, res) => {
@@ -72,25 +125,21 @@ app.post('/addNewUser', async (req, res) => {
 
 app.post("/setSignatureOfUser/:userID", (req, res) => {
     userModel.findOneAndUpdate({userID: req.params.userID}, {
-        signature: {
-            data: req.body.imgUpload,
-            doesSignatureExist: true,
-        },
+        userSignature: req.body.formData,
 
     }, {new: true}, function (err, result) {
         if (err) {
             res.send(err);
         } else {
-            console.log(result)
+
             res.send({
-                mes:"BAŞARIYLA EKLENDİ",
-                dataSended:result,
+                mes: "BAŞARIYLA11111111111111111111 EKLENDİ",
+                dataSended: result,
             })
         }
 
     })
 })
-
 
 /*------------------*/
 
@@ -131,11 +180,13 @@ app.post('/login', async (req, res) => {
                             })
                         } else {
                             console.log(user);
+                            /* var tokenS = jwt.sign({ foo: 'userID' }, 'shhhhh');*/
 
                             res.send({
                                 mes: "BAŞARILI GİRİŞ",
                                 stat: true,
-                                onlineUser: user
+                                onlineUser: user,
+                                /*token: tokenS*/
                             })
 
                         }
@@ -244,6 +295,28 @@ app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res)
     );
 });
 
+
+app.get('/getSignatureByUsersID/:userID',async (req, res)=>{
+    signatureModel.findOne({userID: req.params.userID}, function (err, data) {
+        if (err) {
+            throw Error(err)
+        } else if (data === null || data === undefined || data.length === 0) {
+            console.log(data)
+            res.send({
+                stat: false,
+                mes: "Kullanıcının HATALI"
+            });
+        } else {
+            console.log(data)
+            res.send({
+                stat: true,
+                mes: "Kullanıcının izması Başarıyla Getirildiwqwq",
+                usersSignature: data
+            });
+        }
+    })
+})
+
 app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, res) => {
 
     let newUserPermission = new permissionModel({
@@ -304,59 +377,22 @@ app.get('/LoginSignatureValidation/:userMail', async (req, res) => {
 
     await userModel.getUserByMail(userSignatureValidationModel.userMail, (err, data) => {
             if (err) throw err;
-            if (!data) {
+
+            if (data.userSignature !== undefined && data.userSignature !== null && data.userSignature !== "") {
+                res.send({
+                    stat: true,
+                    mes: "KULLANICNIN İZNİ SİSTEME YÜKLENMİŞ"
+                })
+            } else {
                 res.send({
                     stat: false,
-                    mes: "KULLANICNIN İZNİ SİSTEMDE YOK1111 !"
-                });
-            } else {
-                if (data.signature.data !== null && data.signature.data !== undefined && data.signature.data !== "") {
-                    res.send({
-                        stat: true,
-                        mes: "KULLANICNIN İZNİ SİSTEME YÜKLENMİŞ"
-                    })
-                } else {
-                    res.send({
-                        stat: false,
-                        mes: "KULLANICNIN İZNİ SİSTEMDE YOK323222332 !"
-                    })
-
-                }
+                    mes: "KULLANICNIN İZNİ SİSTEME YÜKLENMİŞ"
+                })
             }
         }
     );
 });
-/*
-app.post('/LoginSignatureValidation/:userMail', async (req, res) => {
 
-    let userSignatureValidationModel = new userModel({
-        userMail: req.params.userMail,
-    })
-
-    await userModel.getUserByMail(userSignatureValidationModel.userMail, (err, data) => {
-            if (err) throw err;
-            if (!data) {
-                res.send({
-                    stat: false,
-                    mes: "KULLANICNIN İZNİ SİSTEMDE YOK1111 !"
-                });
-            } else {
-                if (data.signature.data !== null && data.signature.data !== undefined && data.signature.data !== "") {
-                    res.send({
-                        stat: true,
-                        mes: "KULLANICNIN İZNİ SİSTEME YÜKLENMİŞ"
-                    })
-                } else {
-                    res.send({
-                        stat: false,
-                        mes: "KULLANICNIN İZNİ SİSTEMDE YOK323222332 !"
-                    })
-
-                }
-            }
-        }
-    );
-});*/
 app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
     permissionModel.findOne({permissionID: parseInt(req.params.permissionID)}, function (err, data) {
         if (err) {
