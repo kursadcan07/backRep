@@ -19,7 +19,10 @@ const permissionSchema = new mongoose.Schema({
     userID:Number,
 
     chiefID:Number,
+    proxyChiefID:Number,
+
     generalManagerID:Number,
+    proxyGeneralManagerID:Number,
 
     userStatus:Number,
 
@@ -96,6 +99,14 @@ module.exports.getPermissionsByChiefIDandData =  async function (userData, callb
 
     const messageToSearchWith = new permissionModel({chiefID:userData.chiefID,isPermissionActive: userData.isPermissionActive});
     const query = {chiefID: messageToSearchWith.chiefID , isPermissionActive :messageToSearchWith.isPermissionActive};
+
+    await permissionModel.find(query,callback);
+}
+
+module.exports.getPermissionsByProxyChiefIDandData =  async function (userData, callback)  {
+
+    const messageToSearchWith = new permissionModel({proxyChiefID:userData.proxyChiefID,isPermissionActive: userData.isPermissionActive});
+    const query = {proxyChiefID: messageToSearchWith.proxyChiefID , isPermissionActive :messageToSearchWith.isPermissionActive};
 
     await permissionModel.find(query,callback);
 }

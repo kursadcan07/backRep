@@ -28,7 +28,9 @@ const newUserSchema = new mongoose.Schema({
         lowercase: true,
         required: true
     },
-
+    proxyChiefID:{
+        type: Number,
+    },
     personalName: {
         type: String,
         required: true,

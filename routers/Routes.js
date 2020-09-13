@@ -8,9 +8,10 @@ const signatureModel = require('../models/SignatureSchema');
 const app = express();
 app.use(express.json());
 
-
 const cors = require('cors');
 app.use(cors());
+
+
 let multer = require('multer');
 
 const storage = multer.diskStorage({
@@ -18,7 +19,7 @@ const storage = multer.diskStorage({
         cb(null, './uploads/');
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + file.originalname);
+        cb(null,file.originalname);
     }
 });
 
@@ -98,6 +99,7 @@ app.post('/addNewUser', async (req, res) => {
                 userMail: req.body.userMail,
                 userPassword: req.body.userPassword,
                 personalName: req.body.personalName,
+                proxyChiefID:req.body.proxyChiefID,
                 userStatus: req.body.userStatus,
                 chiefID: req.body.chiefID,
                 generalManagerID: req.body.generalManagerID,
@@ -206,7 +208,12 @@ app.post('/createPermission', (req, res) => {
 
             userID: req.body.userID,
             chiefID: req.body.chiefID,
+            proxyChiefID:req.body.proxyChiefID,
+
+
             generalManagerID: req.body.generalManagerID,
+            proxyGeneralManagerID:req.body.proxyGeneralManagerID,
+
 
             personalName: req.body.personalName,
             demandID: req.body.demandID,
@@ -295,9 +302,10 @@ app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res)
     );
 });
 
+/*
 
 app.get('/getSignatureByUsersID/:userID',async (req, res)=>{
-    signatureModel.findOne({userID: req.params.userID}, function (err, data) {
+        signatureModel.findOne({userID: req.params.userID}, function (err, data) {
         if (err) {
             throw Error(err)
         } else if (data === null || data === undefined || data.length === 0) {
@@ -307,15 +315,13 @@ app.get('/getSignatureByUsersID/:userID',async (req, res)=>{
                 mes: "Kullanıcının HATALI"
             });
         } else {
-            console.log(data)
-            res.send({
-                stat: true,
-                mes: "Kullanıcının izması Başarıyla Getirildiwqwq",
-                usersSignature: data
-            });
+
         }
+
     })
 })
+
+*/
 
 app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, res) => {
 
@@ -342,6 +348,35 @@ app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, 
         }
     );
 });
+
+app.get('/displayPermissionsForProxyChief/:proxyChiefID/:isPermissionActive', async (req, res) => {
+
+    let newUserPermission = new permissionModel({
+        proxyChiefID: req.params.proxyChiefID,
+        isPermissionActive: req.params.isPermissionActive
+    })
+
+    await permissionModel.getPermissionsByProxyChiefIDandData(newUserPermission, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+
+                res.send({
+                    stat: false,
+                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+                });
+            } else {
+                res.send({
+                    stat: true,
+                    mes: "İzinler başarıyla getirildi",
+                    prevPerms: data
+                });
+            }
+        }
+    );
+});
+
+
+
 
 app.get('/displayPermissionsForGeneralManager/:generalManagerID/:isPermissionActive', async (req, res) => {
 
@@ -413,6 +448,25 @@ app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
     })
 })
 
+app.get(('/GetUserMailOfProxyChief/:proxyChiefID'), (req, res) => {
+    userModel.findOne({userID: req.params.proxyChiefID}, function (err, data) {
+        if (err) {
+            throw Error(err)
+        } else if (data === null || data === undefined || data.length === 0) {
+            res.send({
+                stat: false,
+                mes: "Kullanıcının geçmiş izin talebi"
+            });
+        } else {
+            res.send({
+                stat: true,
+                mes: "Vekil Hesabın Adresi Başarıyla Getirildi",
+                chiefProxyEmail: data
+            });
+        }
+    })
+})
+
 /*------------------*/
 
 /*THIS METHOD DISPLAYS ALL PERMISSIONS IN THE SYSTEM INDEPENDENTLY FROM USER */
@@ -464,6 +518,25 @@ app.get(('/displayAllEmployee'), (req, res) => {
 /*----------------------------------------*/
 /*[ 3)PUT-UPDATE OPERATIONS DEFINED HERE ]*/
 /*________________________________________*/
+
+
+
+app.put("/resetProxyChiefsPassword/:proxyChiefID", (req, res) => {
+    userModel.findOneAndUpdate({userID: req.params.proxyChiefID}, {
+        userPassword: req.body.userPassword,
+    }, {new: true}, function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            console.log("********************")
+            console.log(result)
+            res.send({
+                currentProxyAccountData:result
+            })
+
+        }
+})});
+
 
 /*THIS METHOD FINDS FILTERED PERMISSION AND UPDATES IT */
 app.put("/changeChiefStatus", (req, res) => {
