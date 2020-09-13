@@ -7,9 +7,14 @@ const permissionModel = require('../models/PermissionSchema');
 const signatureModel = require('../models/SignatureSchema');
 const app = express();
 app.use(express.json());
+let path = require('path');
+const fs = require("fs")
 
 const cors = require('cors');
 app.use(cors());
+
+//create http server listening on port 3333
+
 
 
 let multer = require('multer');
@@ -22,7 +27,6 @@ const storage = multer.diskStorage({
         cb(null,file.originalname);
     }
 });
-
 const fileFilter = (req, file, cb) => {
     if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
         cb(null, true);
@@ -40,6 +44,27 @@ const upload = multer({
     fileFilter: fileFilter
 })
 
+
+/*
+ImageRouter.route("/uploadmulter")
+    .post(upload.single('imageData'), (req, res, next) => {
+        console.log(req.body);
+        const newImage = new Image({
+            imageName: req.body.imageName,
+            imageData: req.file.path
+        });
+
+        newImage.save()
+            .then((result) => {
+                console.log(result);
+                res.status(200).json({
+                    success: true,
+                    document: result
+                });
+            })
+            .catch((err) => next(err));
+    });
+*/
 app.post('/uploadmulter/:userID', upload.single('imageData'), (req, res, next) => {
     const newImage = new signatureModel({
         userID:req.params.userID,
@@ -302,26 +327,60 @@ app.get('/displayUsersPermissions/:userID/:isPermissionActive', async (req, res)
     );
 });
 
-/*
+
+app.get('/getStatusOfGeneralManagerAndChief/:permissionID', async (req, res) => {
+    permissionModel.findOne({permissionID: req.params.permissionID}, function (err, data) {
+        if (err) {
+            throw Error(err)
+        } else if (data === null || data === undefined) {
+            res.send({
+            mes:"İZİN BULUNAMADI",
+            stat:false
+            })
+        } else {
+            res.send({
+                generalManagerConfirmStatus:data.generalManagerConfirmStatus,
+                chiefConfirmStatus:data.chiefConfirmStatus
+            }
+        )}
+})});
+
+
+
+let mime = {
+    html: 'text/html',
+    txt: 'text/plain',
+    css: 'text/css',
+    gif: 'image/gif',
+    jpg: 'image/jpeg',
+    png: 'image/png',
+    svg: 'image/svg+xml',
+    js: 'application/javascript'
+};
 
 app.get('/getSignatureByUsersID/:userID',async (req, res)=>{
         signatureModel.findOne({userID: req.params.userID}, function (err, data) {
         if (err) {
             throw Error(err)
         } else if (data === null || data === undefined || data.length === 0) {
+            console.log("HAHAHAHAAHH11111")
             console.log(data)
-            res.send({
-                stat: false,
-                mes: "Kullanıcının HATALI"
-            });
         } else {
+            console.log("HAHAHAHAAHH2222")
+            let type = mime[path.extname(__dirname+"\\"+data.imageData).slice(1)] || 'text/plain'
 
+            let s = fs.createReadStream(__dirname+"\\"+data.imageData);
+
+                res.set('Content-Type', type);
+                s.pipe(res);
+
+           // res.sendFile(path.join(__dirname, "\\"+data.imageData));
         }
 
     })
 })
 
-*/
+
 
 app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, res) => {
 

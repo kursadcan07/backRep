@@ -6,7 +6,8 @@ const kittyRoute = require('./routers/Routes.js');
 
 const app = express();
 app.use(express.json())
-
+app.use(express.urlencoded());
+app.use(express.static('uploads'));
 
 app.use(kittyRoute);
 mongoose.connect('mongodb+srv://testboy:mongo123@cluster0.iqq5a.mongodb.net/Cluster0?retryWrites=true&w=majority', {useNewUrlParser: true});
