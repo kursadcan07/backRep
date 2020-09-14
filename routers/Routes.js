@@ -15,8 +15,6 @@ app.use(cors());
 
 //create http server listening on port 3333
 
-
-
 let multer = require('multer');
 
 const storage = multer.diskStorage({
@@ -44,27 +42,6 @@ const upload = multer({
     fileFilter: fileFilter
 })
 
-
-/*
-ImageRouter.route("/uploadmulter")
-    .post(upload.single('imageData'), (req, res, next) => {
-        console.log(req.body);
-        const newImage = new Image({
-            imageName: req.body.imageName,
-            imageData: req.file.path
-        });
-
-        newImage.save()
-            .then((result) => {
-                console.log(result);
-                res.status(200).json({
-                    success: true,
-                    document: result
-                });
-            })
-            .catch((err) => next(err));
-    });
-*/
 app.post('/uploadmulter/:userID', upload.single('imageData'), (req, res, next) => {
     const newImage = new signatureModel({
         userID:req.params.userID,
@@ -75,7 +52,6 @@ app.post('/uploadmulter/:userID', upload.single('imageData'), (req, res, next) =
     newImage.save()
         .then((result) => {
             console.log(result);
-            console.log("BAŞARILIIIIIII")
             res.status(200).json({
                 success: true,
                 document: result
