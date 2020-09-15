@@ -110,6 +110,15 @@ module.exports.getPermissionsByProxyChiefIDandData =  async function (userData, 
 
     await permissionModel.find(query,callback);
 }
+// proxyGeneralManagerID
+
+module.exports.getPermissionsByProxyGeneralManagerIDandData =  async function (userData, callback)  {
+
+    const messageToSearchWith = new permissionModel({proxyGeneralManagerID:userData.proxyGeneralManagerID,isPermissionActive: userData.isPermissionActive});
+    const query = {proxyGeneralManagerID: messageToSearchWith.proxyGeneralManagerID , isPermissionActive :messageToSearchWith.isPermissionActive};
+    await permissionModel.find(query,callback);
+}
+
 
 module.exports.getPermissionsByGeneralManagerIDandData =  async function (userData, callback)  {
 

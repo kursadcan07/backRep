@@ -3,7 +3,7 @@
 */
 
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-sequence')(mongoose);
+/*const AutoIncrement = require('mongoose-sequence')(mongoose);*/
 const mongooseFieldEncryption = require("mongoose-field-encryption").fieldEncryption;
 
 /*
@@ -29,6 +29,9 @@ const newUserSchema = new mongoose.Schema({
         required: true
     },
     proxyChiefID:{
+        type: Number,
+    },
+    proxyGeneralManagerID:{
         type: Number,
     },
     personalName: {
@@ -71,7 +74,7 @@ newUserSchema.plugin(mongooseFieldEncryption, {
 *HERE THE AUTO INCREMENT METHOD IMPLEMENTED.
  */
 
-newUserSchema.plugin(AutoIncrement, {id:'userIDs',inc_field: 'userID'});
+/*newUserSchema.plugin(AutoIncrement, {id:'userIDs',inc_field: 'userID'});*/
 /*
 *   HERE THE MODEL EXPORTED
 */

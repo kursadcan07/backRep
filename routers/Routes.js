@@ -87,7 +87,7 @@ app.post('/setUserSignature/:userID', upload.single('imageData'), (req, res, nex
 
 /* THIS METHOD ADDS NEW USER TO THE SYSTEM */
 app.post('/addNewUser', async (req, res) => {
-    let flag = false;
+
     await userModel.getUserByMail(req.body.userMail, (err, user) => {
         if (err) throw err;
         if (user) {
@@ -97,17 +97,17 @@ app.post('/addNewUser', async (req, res) => {
             })
         } else {
             let newUser = new userModel({
+                userID:req.body.userID,
                 userMail: req.body.userMail,
                 userPassword: req.body.userPassword,
                 personalName: req.body.personalName,
                 proxyChiefID:req.body.proxyChiefID,
+                proxyGeneralManagerID:req.body.proxyGeneralManagerID,
                 userStatus: req.body.userStatus,
                 chiefID: req.body.chiefID,
                 generalManagerID: req.body.generalManagerID,
                 userArea: req.body.userArea
             })
-
-
             newUser.save(function (err) {
                 if (err) {
                     res.send({
@@ -136,7 +136,7 @@ app.post("/setSignatureOfUser/:userID", (req, res) => {
         } else {
 
             res.send({
-                mes: "BAŞARIYLA11111111111111111111 EKLENDİ",
+                mes: "BAŞARIYLA EKLENDİ",
                 dataSended: result,
             })
         }
@@ -321,37 +321,20 @@ app.get('/getStatusOfGeneralManagerAndChief/:permissionID', async (req, res) => 
         )}
 })});
 
-
-
-let mime = {
-    html: 'text/html',
-    txt: 'text/plain',
-    css: 'text/css',
-    gif: 'image/gif',
-    jpg: 'image/jpeg',
-    png: 'image/png',
-    svg: 'image/svg+xml',
-    js: 'application/javascript'
-};
-
 app.get('/getSignatureByUsersID/:userID',async (req, res)=>{
         signatureModel.findOne({userID: req.params.userID}, function (err, data) {
         if (err) {
             console.log('err: ', err)
             throw Error(err)
         } else if (data === null || data === undefined || data.length === 0) {
-            console.log("HAHAHAHAAHH11111")
             console.log(data)
         } else {
-            console.log("ALAN 123123123")
             res.sendFile(__dirname+"/"+data.imageData);
            // res.sendFile(path.join(__dirname, "\\"+data.imageData));
         }
 
     })
 })
-
-
 
 app.get('/displayPermissionsForChief/:chiefID/:isPermissionActive', async (req, res) => {
 
@@ -405,7 +388,58 @@ app.get('/displayPermissionsForProxyChief/:proxyChiefID/:isPermissionActive', as
     );
 });
 
+app.get('/displayPermissionsForProxyGeneralManager/:proxyGeneralManagerID/:isPermissionActive', async (req, res) => {
 
+    let newUserPermission = new permissionModel({
+        proxyGeneralManagerID: req.params.proxyGeneralManagerID,
+        isPermissionActive: req.params.isPermissionActive
+    })
+
+    await permissionModel.getPermissionsByProxyGeneralManagerIDandData(newUserPermission, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+
+                res.send({
+                    stat: false,
+                    mes: "Proxy general manager bilgisi bulunamadı"
+                });
+            } else {
+                res.send({
+                    stat: true,
+                    mes: "Proxy general manager bilgisi başarıyla getirildi.",
+                    prevPerms: data
+                });
+            }
+        }
+    );
+});
+
+app.get('/displayPermissionsForGeneralManager/:generalManagerID/:isPermissionActive', async (req, res) => {
+
+    let newUserPermission = new permissionModel({
+        generalManagerID: req.params.generalManagerID,
+        isPermissionActive: req.params.isPermissionActive
+    })
+
+    await permissionModel.getPermissionsByGeneralManagerIDandData(newUserPermission, (err, data) => {
+            if (err) throw err;
+            if (!data) {
+
+                res.send({
+                    stat: false,
+                    mes: "Kullanıcının geçmiş izin talebi bulunamadı"
+                });
+            } else {
+                console.log(data);
+                res.send({
+                    stat: true,
+                    mes: "İzinler başarıyla getirildi",
+                    prevPerms: data
+                });
+            }
+        }
+    );
+});
 
 
 app.get('/displayPermissionsForGeneralManager/:generalManagerID/:isPermissionActive', async (req, res) => {
@@ -434,6 +468,8 @@ app.get('/displayPermissionsForGeneralManager/:generalManagerID/:isPermissionAct
         }
     );
 });
+
+
 app.get('/LoginSignatureValidation/:userMail', async (req, res) => {
 
     let userSignatureValidationModel = new userModel({
@@ -478,6 +514,25 @@ app.get(('/DisplayPermissionForm/:permissionID'), (req, res) => {
     })
 })
 
+app.get(('/GetUserMailOfProxyGeneralManager/:proxyGeneralManagerID'), (req, res) => {
+    userModel.findOne({userID: req.params.proxyGeneralManagerID}, function (err, data) {
+        if (err) {
+            throw Error(err)
+        } else if (data === null || data === undefined || data.length === 0) {
+            res.send({
+                stat: false,
+                mes: "Kullanıcının geçmiş izin talebi"
+            });
+        } else {
+            res.send({
+                stat: true,
+                mes: "Vekil Hesabın Adresi Başarıyla Getirildi",
+                proxyGeneralManagerEmail: data
+            });
+        }
+    })
+})
+
 app.get(('/GetUserMailOfProxyChief/:proxyChiefID'), (req, res) => {
     userModel.findOne({userID: req.params.proxyChiefID}, function (err, data) {
         if (err) {
@@ -496,9 +551,7 @@ app.get(('/GetUserMailOfProxyChief/:proxyChiefID'), (req, res) => {
         }
     })
 })
-
 /*------------------*/
-
 /*THIS METHOD DISPLAYS ALL PERMISSIONS IN THE SYSTEM INDEPENDENTLY FROM USER */
 app.get('/displayAllPermissions', (req, res) => {
     permissionModel.find({}, function (err, data) {
@@ -558,14 +611,28 @@ app.put("/resetProxyChiefsPassword/:proxyChiefID", (req, res) => {
         if (err) {
             res.send(err);
         } else {
-            console.log("********************")
-            console.log(result)
+
             res.send({
                 currentProxyAccountData:result
             })
 
         }
 })});
+
+
+app.put("/resetProxyGeneralManagerPassword/:proxyGeneralManagerID", (req, res) => {
+    userModel.findOneAndUpdate({userID: req.params.proxyChiefID}, {
+        userPassword: req.body.userPassword,
+    }, {new: true}, function (err, result) {
+        if (err) {
+            res.send(err);
+        } else {
+            console.log(result)
+            res.send({
+                currentProxyAccountData:result
+            })
+        }
+    })});
 
 
 /*THIS METHOD FINDS FILTERED PERMISSION AND UPDATES IT */
