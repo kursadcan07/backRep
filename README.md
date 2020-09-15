@@ -1,2 +1,2 @@
 # backRep
-npm start is enough fo run.
+npm start is enough for run.
