@@ -45,7 +45,7 @@ const upload = multer({
 app.post('/uploadmulter/:userID', upload.single('imageData'), (req, res, next) => {
     const newImage = new signatureModel({
         userID:req.params.userID,
-        imageName: req.body.imageName,
+        imageName: req.file.imageName,
         imageData: req.file.path
     });
 
@@ -337,19 +337,14 @@ let mime = {
 app.get('/getSignatureByUsersID/:userID',async (req, res)=>{
         signatureModel.findOne({userID: req.params.userID}, function (err, data) {
         if (err) {
+            console.log('err: ', err)
             throw Error(err)
         } else if (data === null || data === undefined || data.length === 0) {
             console.log("HAHAHAHAAHH11111")
             console.log(data)
         } else {
-            console.log("HAHAHAHAAHH2222")
-            let type = mime[path.extname(__dirname+"\\"+data.imageData).slice(1)] || 'text/plain'
-
-            let s = fs.createReadStream(__dirname+"\\"+data.imageData);
-
-                res.set('Content-Type', type);
-                s.pipe(res);
-
+            console.log("ALAN 123123123")
+            res.sendFile(__dirname+"/"+data.imageData);
            // res.sendFile(path.join(__dirname, "\\"+data.imageData));
         }
 
